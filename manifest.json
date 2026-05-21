@@ -1,0 +1,22 @@
+{
+  "name": "PancingPRO",
+  "short_name": "PancingPRO",
+  "description": "Dashboard Ramalan Memancing Pintar dengan data cuaca 2-jam untuk perancangan tepat.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
