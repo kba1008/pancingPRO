@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pancingpro-v3';
+const CACHE_NAME = 'pancingpro-v4';
 const urlsToCache = [
     '/',
     'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
     'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap',
-    'https://cdn-icons-png.flaticon.com/512/3063/3063822.png'
+    'https://cdn-icons-png.flaticon.com/512/2972/2972185.png'
 ];
 
 self.addEventListener('install', event => {
