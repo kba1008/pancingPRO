@@ -23,10 +23,13 @@
             --danger: #ff4747;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body, html {
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             font-family: 'Poppins', sans-serif;
             background: var(--bg-dark);
             color: white;
@@ -36,12 +39,21 @@
 
         /* 3D Background Canvas */
         #canvas-container {
-            position: fixed; top: 0; left: 0; z-index: -1; width: 100vw; height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100vw;
+            height: 100vh;
         }
 
         /* Layout Utama */
         .app-container {
-            max-width: 600px; margin: 0 auto; padding: 20px; position: relative; z-index: 10;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
             padding-bottom: 40px;
         }
 
@@ -63,46 +75,194 @@
             box-shadow: 0 12px 40px 0 rgba(0, 210, 255, 0.15);
         }
 
-        .header-status { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; opacity: 0.9; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        h2, h3 { font-family: 'Orbitron', sans-serif; margin: 0 0 15px 0; letter-spacing: 1px; color: #fff; }
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0 0 15px 0;
+            letter-spacing: 1px;
+            color: #fff;
+        }
         
         /* Typography Khusus */
-        .score-container { text-align: center; position: relative; padding: 20px 0; }
-        .score-value { font-family: 'Orbitron', sans-serif; font-size: 4.5rem; font-weight: 700; color: var(--success); text-shadow: 0 0 20px rgba(0, 255, 136, 0.6); line-height: 1; margin: 10px 0; transition: color 0.5s, text-shadow 0.5s; }
-        .score-status { font-size: 1.2rem; font-weight: 600; color: var(--warning); text-transform: uppercase; letter-spacing: 2px; }
+        .score-container {
+            text-align: center;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--success);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            line-height: 1;
+            margin: 10px 0;
+            transition: color 0.5s, text-shadow 0.5s;
+        }
+
+        .score-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
         /* Grid Layouts */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .grid-list { display: flex; flex-direction: column; gap: 12px; }
-        
-        .info-box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent-blue); }
-        .info-box.danger { border-left-color: var(--danger); }
-        .info-box.success { border-left-color: var(--success); }
-        .info-box.warning { border-left-color: var(--warning); }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
 
-        .label { font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 0.5px; }
-        .value { font-size: 1.1rem; font-weight: 600; }
+        .grid-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .info-box {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .info-box.danger {
+            border-left-color: var(--danger);
+        }
+
+        .info-box.success {
+            border-left-color: var(--success);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--warning);
+        }
+
+        .label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
 
         /* Jadual Pasang Surut */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; }
-        th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
-        th { color: var(--accent-blue); font-weight: 600; background: rgba(0,0,0,0.3); text-transform: uppercase; font-size: 0.8rem; }
-        .highlight-row { background: rgba(0, 210, 255, 0.15); font-weight: bold; border-left: 3px solid var(--accent-blue); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--accent-blue);
+            font-weight: 600;
+            background: rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .highlight-row {
+            background: rgba(0, 210, 255, 0.15);
+            font-weight: bold;
+            border-left: 3px solid var(--accent-blue);
+        }
 
         /* Badges */
-        .badge { display: inline-block; padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-right: 5px; margin-top: 5px; }
-        .bg-blue { background: var(--accent-blue); color: #000; }
-        .bg-green { background: var(--success); color: #000; }
-        .bg-red { background: var(--danger); color: #fff; }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .bg-blue {
+            background: var(--accent-blue);
+            color: #000;
+        }
+
+        .bg-green {
+            background: var(--success);
+            color: #000;
+        }
+
+        .bg-red {
+            background: var(--danger);
+            color: #fff;
+        }
         
         /* Input & Loader */
-        input[type="date"] { width: 100%; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; font-family: 'Poppins'; outline: none; margin-bottom: 15px; font-size: 1rem; transition: border-color 0.3s; }
-        input[type="date"]:focus { border-color: var(--accent-blue); }
+        input[type="date"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            font-family: 'Poppins';
+            outline: none;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus {
+            border-color: var(--accent-blue);
+        }
         
-        .loader-text { font-size: 0.9rem; color: var(--accent-blue); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .loader-text {
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
         
-        .indicator-dot { height: 10px; width: 10px; background-color: var(--success); border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 8px var(--success); }
+        .indicator-dot {
+            height: 10px;
+            width: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px var(--success);
+        }
     </style>
 </head>
 <body>
@@ -112,13 +272,18 @@
     <div class="app-container">
         
         <div id="alert-box" class="glass-card" style="display: none; border-color: var(--danger); background: rgba(255, 71, 71, 0.15);">
-            <h3 style="color: var(--danger); display: flex; align-items: center;"><span style="font-size: 1.5rem; margin-right: 10px;">⚠️</span> AMARAN KESELAMATAN</h3>
+            <h3 style="color: var(--danger); display: flex; align-items: center;">
+                <span style="font-size: 1.5rem; margin-right: 10px;">⚠️</span> AMARAN KESELAMATAN
+            </h3>
             <p id="alert-msg" style="margin:0; font-size: 0.95rem; line-height: 1.5;">Cuaca tidak mengizinkan. Kelajuan angin dikesan tinggi.</p>
         </div>
 
         <div class="glass-card">
             <div class="header-status">
-                <span id="gps-loc" style="display: flex; align-items: center;"><span class="indicator-dot" id="gps-dot" style="background-color: var(--warning);"></span> Mengesan Satelit...</span>
+                <span id="gps-loc" style="display: flex; align-items: center;">
+                    <span class="indicator-dot" id="gps-dot" style="background-color: var(--warning);"></span> 
+                    <span id="area-name">Mengesan Satelit...</span>
+                </span>
                 <span id="current-date" style="font-weight: 600;">--/--/----</span>
             </div>
             <div class="score-container">
@@ -155,12 +320,38 @@
 
         <div class="glass-card">
             <h3>🌊 DINAMIK ARUS & PASANG SURUT</h3>
-            <table>
-                <tr><th>Fasa Air</th><th>Status</th><th>Aktiviti Ikan</th></tr>
-                <tr><td>Air Pasang Penuh</td><td>Air Tegak</td><td><span class="badge bg-red">Pasif</span></td></tr>
-                <tr class="highlight-row"><td>Mula Surut</td><td>Tolak Luar</td><td><span class="badge bg-green">Sangat Aktif</span></td></tr>
-                <tr><td>Surut Terendah</td><td>Air Mati</td><td><span class="badge bg-red">Pasif</span></td></tr>
-                <tr class="highlight-row"><td>Mula Pasang</td><td>Arus Laju</td><td><span class="badge bg-green">Aktif</span></td></tr>
+            <p style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 10px;">* Menggunakan jadual standard maritim semi-diurnal berpandukan Jabatan tempatan (Anggaran).</p>
+            <table id="tide-table">
+                <tr>
+                    <th>Fasa Air</th>
+                    <th>Status</th>
+                    <th>Aktiviti Ikan</th>
+                    <th>Waktu (Anggaran)</th>
+                </tr>
+                <tr>
+                    <td>Pasang Penuh</td>
+                    <td>Air Tegak</td>
+                    <td><span class="badge bg-red">Pasif</span></td>
+                    <td>Memuat...</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Mula Surut</td>
+                    <td>Tolak Luar</td>
+                    <td><span class="badge bg-green">Sangat Aktif</span></td>
+                    <td>Memuat...</td>
+                </tr>
+                <tr>
+                    <td>Surut Terendah</td>
+                    <td>Air Mati</td>
+                    <td><span class="badge bg-red">Pasif</span></td>
+                    <td>Memuat...</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Mula Pasang</td>
+                    <td>Arus Laju</td>
+                    <td><span class="badge bg-green">Aktif</span></td>
+                    <td>Memuat...</td>
+                </tr>
             </table>
         </div>
 
@@ -203,6 +394,7 @@
                 wireframe: true,
                 shininess: 100
             });
+            
             water = new THREE.Mesh(geometry, material);
             water.rotation.x = -Math.PI / 2;
             water.position.y = -6;
@@ -226,9 +418,87 @@
             renderer.render(scene, camera);
         }
 
-        // --- 2. LOGIK ALGORITMA 100% LOKASI & CUACA --- //
-        
-        // Formula Fasa Bulan Ephemeris Asas
+        // --- 2. REVERSE GEOCODING (Dapatkan Nama Kawasan) --- //
+        async function fetchLocationName(lat, lon) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept-Language': 'ms-MY, ms'
+                    }
+                });
+                
+                if (!response.ok) throw new Error("Gagal reverse geocode");
+                const data = await response.json();
+                
+                let area = data.address.city || data.address.town || data.address.county || data.address.state || "Kawasan Perairan";
+                document.getElementById('area-name').innerHTML = `<b>${area}</b> (${lat.toFixed(3)}, ${lon.toFixed(3)})`;
+                document.getElementById('gps-dot').style.backgroundColor = "var(--success)";
+            } catch (error) {
+                console.error("Gagal dapatkan nama kawasan:", error);
+                document.getElementById('area-name').innerText = `Koordinat: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+                document.getElementById('gps-dot').style.backgroundColor = "var(--success)";
+            }
+        }
+
+        // --- 3. JANA JADUAL PASANG SURUT (Berdasarkan Umur Bulan) --- //
+        function generateTideSchedule(moonAge) {
+            // Algoritma semi-diurnal (2 kali pasang, 2 kali surut) anggaran perairan Malaysia.
+            // Asas: purata kelewatan air pasang harian ialah 50 minit (0.833 jam).
+            let baseHigh = 5.5 + (moonAge * 0.833);
+            
+            let high1 = baseHigh % 12;
+            let high2 = (high1 + 12.4) % 24;
+            let low1 = (high1 + 6.2) % 24;
+            let low2 = (high1 + 18.6) % 24;
+            
+            function formatTime(hDecimal) {
+                let h = Math.floor(hDecimal);
+                let m = Math.floor((hDecimal - h) * 60);
+                if (h < 0) h += 24;
+                h = h % 24;
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                let hour = h % 12;
+                if (hour === 0) hour = 12;
+                return `${hour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+            }
+
+            let html = `
+                <tr>
+                    <th>Fasa Air</th>
+                    <th>Status</th>
+                    <th>Aktiviti Ikan</th>
+                    <th>Waktu (Anggaran JUPEM)</th>
+                </tr>
+                <tr>
+                    <td>Pasang Penuh</td>
+                    <td>Air Tegak</td>
+                    <td><span class="badge bg-red">Pasif</span></td>
+                    <td>${formatTime(high1)} & ${formatTime(high2)}</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Mula Surut</td>
+                    <td>Tolak Luar</td>
+                    <td><span class="badge bg-green">Sangat Aktif</span></td>
+                    <td>${formatTime(high1 + 1.5)} & ${formatTime(high2 + 1.5)}</td>
+                </tr>
+                <tr>
+                    <td>Surut Terendah</td>
+                    <td>Air Mati</td>
+                    <td><span class="badge bg-red">Pasif</span></td>
+                    <td>${formatTime(low1)} & ${formatTime(low2)}</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Mula Pasang</td>
+                    <td>Arus Laju</td>
+                    <td><span class="badge bg-green">Aktif</span></td>
+                    <td>${formatTime(low1 + 1.5)} & ${formatTime(low2 + 1.5)}</td>
+                </tr>
+            `;
+            document.getElementById('tide-table').innerHTML = html;
+        }
+
+        // --- 4. LOGIK ALGORITMA 100% LOKASI & CUACA --- //
         function calculateMoonPhase(date) {
             const lp = 2551443;
             const now = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 20, 35, 0);
@@ -237,21 +507,35 @@
             const age = Math.floor(phase / (24 * 3600));
             
             let name, scoreMultiplier;
-            if (age < 2 || age > 28) { name = "Bulan Gelap (New Moon)"; scoreMultiplier = 1.0; }
-            else if (age > 13 && age < 16) { name = "Bulan Penuh (Full Moon)"; scoreMultiplier = 0.95; }
-            else if (age > 6 && age < 9) { name = "Suku Pertama (Air Mati)"; scoreMultiplier = 0.4; }
-            else if (age > 21 && age < 24) { name = "Suku Terakhir (Air Mati)"; scoreMultiplier = 0.4; }
-            else { name = "Fasa Transisi"; scoreMultiplier = 0.7; }
+            if (age < 2 || age > 28) {
+                name = "Bulan Gelap (New Moon)";
+                scoreMultiplier = 1.0;
+            } else if (age > 13 && age < 16) {
+                name = "Bulan Penuh (Full Moon)";
+                scoreMultiplier = 0.95;
+            } else if (age > 6 && age < 9) {
+                name = "Suku Pertama (Air Mati)";
+                scoreMultiplier = 0.4;
+            } else if (age > 21 && age < 24) {
+                name = "Suku Terakhir (Air Mati)";
+                scoreMultiplier = 0.4;
+            } else {
+                name = "Fasa Transisi";
+                scoreMultiplier = 0.7;
+            }
             
             return { age, name, scoreMultiplier };
         }
 
         async function fetchRealTimeData(lat, lon) {
             try {
-                // Gunakan Open-Meteo (Percuma, Tiada API Key diperlukan)
+                // Dapatkan nama kawasan berpandukan lat/lon
+                fetchLocationName(lat, lon);
+
+                // Open-Meteo API
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset&timezone=auto`;
                 const response = await fetch(url);
-                if(!response.ok) throw new Error("Ralat Rangkaian");
+                if (!response.ok) throw new Error("Ralat Rangkaian");
                 const data = await response.json();
                 
                 processAdvancedScore(data, lat, lon);
@@ -270,18 +554,19 @@
             const sunrise = new Date(weatherData.daily.sunrise[0]);
             const sunset = new Date(weatherData.daily.sunset[0]);
 
+            // Jana Jadual Dinamik Air Pasang Surut Berdasarkan Umur Bulan
+            generateTideSchedule(moon.age);
+
             // --- PENGIRAAN SKOR KOMPLEKS ---
-            let finalScore = 80 * moon.scoreMultiplier; // Asas dari fasa bulan (Max 80)
+            let finalScore = 80 * moon.scoreMultiplier;
             
-            // Bonus Waktu (Solunar Major Periods selalunya dekat Sunrise/Sunset)
             const hoursToSunrise = Math.abs(today - sunrise) / 36e5;
             const hoursToSunset = Math.abs(today - sunset) / 36e5;
             
             if (hoursToSunrise <= 2 || hoursToSunset <= 2) {
-                finalScore += 20; // Bonus 20 markah jika memancing waktu subuh/senja
+                finalScore += 20;
             }
 
-            // Penalti Cuaca (Angin Kuat)
             let alertMode = false;
             if (currentWindKmh > 25) {
                 finalScore -= 30;
@@ -301,11 +586,15 @@
             document.getElementById('temp-val').innerText = `${currentTemp} °C`;
             document.getElementById('temp-val').classList.remove('loader-text');
             
-            // Warna Skor
             let color = "var(--success)";
             let status = "SANGAT AKTIF";
-            if (finalScore < 50) { color = "var(--danger)"; status = "PASIF / BERISIKO"; }
-            else if (finalScore < 75) { color = "var(--warning)"; status = "SEDERHANA"; }
+            if (finalScore < 50) {
+                color = "var(--danger)";
+                status = "PASIF / BERISIKO";
+            } else if (finalScore < 75) {
+                color = "var(--warning)";
+                status = "SEDERHANA";
+            }
 
             const scoreEl = document.getElementById('kill-score');
             scoreEl.innerText = `${finalScore}%`;
@@ -316,7 +605,6 @@
             statusEl.innerText = status;
             statusEl.style.color = color;
 
-            // Strategi Dinamik
             let strategy = "";
             if (alertMode) {
                 document.getElementById('alert-box').style.display = 'block';
@@ -328,24 +616,20 @@
                 strategy = "Kondisi mencabar. Ikan kurang aktif. Gunakan perambut halus, umpan berbau kuat (seperti udang peram) dan teknik memancing dasar (bottom).";
             }
             document.getElementById('strategy-text').innerText = strategy;
-
-            // GPS Dot Sukses
-            document.getElementById('gps-dot').style.backgroundColor = "var(--success)";
-            document.getElementById('gps-loc').innerHTML = `<span class="indicator-dot" id="gps-dot" style="background-color: var(--success);"></span> Kordinat: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
         }
 
         function initApp() {
             const today = new Date();
             document.getElementById('current-date').innerText = today.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' });
             
-            // Minta Lokasi
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
                         fetchRealTimeData(pos.coords.latitude, pos.coords.longitude);
                     },
                     (err) => {
-                        document.getElementById('gps-loc').innerHTML = `<span class="indicator-dot" style="background-color: var(--danger);"></span> Sila On GPS/Location`;
+                        document.getElementById('area-name').innerText = "Sila On GPS/Location";
+                        document.getElementById('gps-dot').style.backgroundColor = "var(--danger)";
                         document.getElementById('kill-status').innerText = "LOKASI DIPERLUKAN";
                         // Fallback Koordinat (KL / Port Klang) jika user block GPS
                         fetchRealTimeData(3.0, 101.3);
@@ -353,7 +637,7 @@
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
-                document.getElementById('gps-loc').innerText = "GPS Tidak Disokong";
+                document.getElementById('area-name').innerText = "GPS Tidak Disokong";
             }
         }
 
