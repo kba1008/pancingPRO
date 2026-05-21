@@ -2,8 +2,8 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PancingPro 365 - Pro Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PancingPRO - Dashboard Cuaca & Air</title>
     
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href="manifest.json">
@@ -35,6 +35,7 @@
             color: white;
             overflow-x: hidden;
             min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* 3D Background Canvas */
@@ -47,11 +48,11 @@
             height: 100vh;
         }
 
-        /* Layout Utama */
+        /* Layout Utama (Mesra Telefon Pintar) */
         .app-container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
             position: relative;
             z-index: 10;
             padding-bottom: 40px;
@@ -64,15 +65,14 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 18px;
+            margin-bottom: 18px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .glass-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px 0 rgba(0, 210, 255, 0.15);
+        .glass-card:active {
+            transform: scale(0.98);
         }
 
         .header-status {
@@ -91,18 +91,19 @@
             margin: 0 0 15px 0;
             letter-spacing: 1px;
             color: #fff;
+            font-size: 1.1rem;
         }
         
         /* Typography Khusus */
         .score-container {
             text-align: center;
             position: relative;
-            padding: 20px 0;
+            padding: 15px 0;
         }
 
         .score-value {
             font-family: 'Orbitron', sans-serif;
-            font-size: 4.5rem;
+            font-size: 4rem;
             font-weight: 700;
             color: var(--success);
             text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
@@ -112,56 +113,48 @@
         }
 
         .score-status {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--warning);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
         }
 
         /* Grid Layouts */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         .grid-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         
         .info-box {
             background: rgba(0,0,0,0.4);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
             border-left: 4px solid var(--accent-blue);
         }
 
-        .info-box.danger {
-            border-left-color: var(--danger);
-        }
-
-        .info-box.success {
-            border-left-color: var(--success);
-        }
-
-        .info-box.warning {
-            border-left-color: var(--warning);
-        }
+        .info-box.danger { border-left-color: var(--danger); }
+        .info-box.success { border-left-color: var(--success); }
+        .info-box.warning { border-left-color: var(--warning); }
 
         .label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             opacity: 0.7;
             text-transform: uppercase;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             letter-spacing: 0.5px;
         }
 
         .value {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -177,9 +170,9 @@
 
         th, td {
             text-align: left;
-            padding: 12px 10px;
+            padding: 10px 8px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         th {
@@ -187,7 +180,7 @@
             font-weight: 600;
             background: rgba(0,0,0,0.3);
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .highlight-row {
@@ -199,51 +192,21 @@
         /* Badges */
         .badge {
             display: inline-block;
-            padding: 5px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: bold;
             text-transform: uppercase;
-            margin-right: 5px;
-            margin-top: 5px;
+            margin-right: 2px;
+            margin-top: 2px;
         }
 
-        .bg-blue {
-            background: var(--accent-blue);
-            color: #000;
-        }
-
-        .bg-green {
-            background: var(--success);
-            color: #000;
-        }
-
-        .bg-red {
-            background: var(--danger);
-            color: #fff;
-        }
-        
-        /* Input & Loader */
-        input[type="date"] {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            font-family: 'Poppins';
-            outline: none;
-            margin-bottom: 15px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input[type="date"]:focus {
-            border-color: var(--accent-blue);
-        }
+        .bg-blue { background: var(--accent-blue); color: #000; }
+        .bg-green { background: var(--success); color: #000; }
+        .bg-red { background: var(--danger); color: #fff; }
         
         .loader-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--accent-blue);
             animation: pulse 1.5s infinite;
         }
@@ -263,6 +226,56 @@
             margin-right: 5px;
             box-shadow: 0 0 8px var(--success);
         }
+
+        /* Ramalan Cuaca 2-Jam Scroll Horizontal */
+        .forecast-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-blue) rgba(0,0,0,0.2);
+        }
+        .forecast-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .forecast-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .forecast-scroll::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 10px;
+        }
+        .forecast-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 12px;
+            min-width: 85px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+        .forecast-time {
+            font-size: 0.75rem;
+            color: var(--accent-blue);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .forecast-icon {
+            font-size: 1.8rem;
+            margin: 5px 0;
+        }
+        .forecast-temp {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .forecast-wind {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
@@ -275,7 +288,7 @@
             <h3 style="color: var(--danger); display: flex; align-items: center;">
                 <span style="font-size: 1.5rem; margin-right: 10px;">⚠️</span> AMARAN KESELAMATAN
             </h3>
-            <p id="alert-msg" style="margin:0; font-size: 0.95rem; line-height: 1.5;">Cuaca tidak mengizinkan. Kelajuan angin dikesan tinggi.</p>
+            <p id="alert-msg" style="margin:0; font-size: 0.85rem; line-height: 1.5;">Cuaca tidak mengizinkan. Kelajuan angin dikesan tinggi.</p>
         </div>
 
         <div class="glass-card">
@@ -292,11 +305,13 @@
                 <div id="kill-status" class="score-status">MEMUAT DATA...</div>
             </div>
             <div class="grid-2" style="margin-top: 15px;">
-                <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <span class="label">Fasa Bulan</span>
-                    <span id="moon-phase" style="font-size: 0.85rem; font-weight: 600; color: var(--accent-blue);">--</span>
+                    <span id="moon-phase" style="font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); text-align: center;">
+                        <div class="loader-text">Kira...</div>
+                    </span>
                 </div>
-                <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <span class="label">Waktu Puncak (Major)</span>
                     <span id="peak-time" style="font-size: 0.85rem; font-weight: 600; color: var(--success);">--:--</span>
                 </div>
@@ -304,23 +319,16 @@
         </div>
 
         <div class="glass-card">
-            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">⛅</span> CUACA & LOKASI MASA NYATA</h3>
-            <div class="grid-2" style="margin-bottom: 15px;">
-                <div class="info-box">
-                    <span class="label">Keadaan Angin</span>
-                    <span id="wind-speed" class="value loader-text">Mengira...</span>
-                </div>
-                <div class="info-box">
-                    <span class="label">Suhu Sekeliling</span>
-                    <span id="temp-val" class="value loader-text">Mengira...</span>
-                </div>
+            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">⏱️</span> RAMALAN CUACA (SETIAP 2 JAM)</h3>
+            <div id="forecast-container" class="forecast-scroll">
+                <div class="loader-text" style="padding: 10px;">Memuat turun data ramalan dunia...</div>
             </div>
-            <p style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0;">* Data dijana 100% tepat mengikut koordinat GPS peranti anda.</p>
+            <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0; margin-top: 10px;">* Tatal ke kanan untuk ramalan seterusnya.</p>
         </div>
 
         <div class="glass-card">
             <h3>🌊 DINAMIK ARUS & PASANG SURUT</h3>
-            <p style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 10px;">* Menggunakan jadual standard maritim semi-diurnal berpandukan Jabatan tempatan (Anggaran).</p>
+            <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 10px;">* Anggaran berpandukan fasa bulan maritim Malaysia.</p>
             <table id="tide-table">
                 <tr>
                     <th>Fasa Air</th>
@@ -328,30 +336,7 @@
                     <th>Aktiviti Ikan</th>
                     <th>Waktu (Anggaran)</th>
                 </tr>
-                <tr>
-                    <td>Pasang Penuh</td>
-                    <td>Air Tegak</td>
-                    <td><span class="badge bg-red">Pasif</span></td>
-                    <td>Memuat...</td>
-                </tr>
-                <tr class="highlight-row">
-                    <td>Mula Surut</td>
-                    <td>Tolak Luar</td>
-                    <td><span class="badge bg-green">Sangat Aktif</span></td>
-                    <td>Memuat...</td>
-                </tr>
-                <tr>
-                    <td>Surut Terendah</td>
-                    <td>Air Mati</td>
-                    <td><span class="badge bg-red">Pasif</span></td>
-                    <td>Memuat...</td>
-                </tr>
-                <tr class="highlight-row">
-                    <td>Mula Pasang</td>
-                    <td>Arus Laju</td>
-                    <td><span class="badge bg-green">Aktif</span></td>
-                    <td>Memuat...</td>
-                </tr>
+                <tr><td colspan="4" class="loader-text" style="text-align:center;">Memuat...</td></tr>
             </table>
         </div>
 
@@ -360,7 +345,7 @@
             <div class="grid-list">
                 <div class="info-box success">
                     <span class="label">Tindakan Disarankan Berdasarkan Lokasi & Waktu Semasa</span>
-                    <span id="strategy-text" style="font-size: 0.95rem; line-height: 1.5;">Sila benarkan akses lokasi untuk mendapatkan strategi tepat.</span>
+                    <span id="strategy-text" style="font-size: 0.85rem; line-height: 1.5;">Sila benarkan akses lokasi untuk mendapatkan strategi tepat.</span>
                 </div>
             </div>
         </div>
@@ -418,6 +403,18 @@
             renderer.render(scene, camera);
         }
 
+        // --- PENTERJEMAH IKON CUACA (WMO Code) --- //
+        function getWeatherIcon(code) {
+            if (code === 0) return "☀️";
+            if (code === 1 || code === 2 || code === 3) return "⛅";
+            if (code >= 45 && code <= 48) return "🌫️";
+            if (code >= 51 && code <= 67) return "🌧️";
+            if (code >= 71 && code <= 77) return "❄️";
+            if (code >= 80 && code <= 82) return "🌦️";
+            if (code >= 95 && code <= 99) return "⛈️";
+            return "🌡️";
+        }
+
         // --- 2. REVERSE GEOCODING (Dapatkan Nama Kawasan) --- //
         async function fetchLocationName(lat, lon) {
             try {
@@ -443,10 +440,7 @@
 
         // --- 3. JANA JADUAL PASANG SURUT (Berdasarkan Umur Bulan) --- //
         function generateTideSchedule(moonAge) {
-            // Algoritma semi-diurnal (2 kali pasang, 2 kali surut) anggaran perairan Malaysia.
-            // Asas: purata kelewatan air pasang harian ialah 50 minit (0.833 jam).
             let baseHigh = 5.5 + (moonAge * 0.833);
-            
             let high1 = baseHigh % 12;
             let high2 = (high1 + 12.4) % 24;
             let low1 = (high1 + 6.2) % 24;
@@ -468,7 +462,7 @@
                     <th>Fasa Air</th>
                     <th>Status</th>
                     <th>Aktiviti Ikan</th>
-                    <th>Waktu (Anggaran JUPEM)</th>
+                    <th>Waktu (Anggaran)</th>
                 </tr>
                 <tr>
                     <td>Pasang Penuh</td>
@@ -506,34 +500,87 @@
             const phase = ((now.getTime() - new_moon.getTime()) / 1000) % lp;
             const age = Math.floor(phase / (24 * 3600));
             
-            let name, scoreMultiplier;
+            let name, scoreMultiplier, icon;
             if (age < 2 || age > 28) {
                 name = "Bulan Gelap (New Moon)";
                 scoreMultiplier = 1.0;
-            } else if (age > 13 && age < 16) {
-                name = "Bulan Penuh (Full Moon)";
-                scoreMultiplier = 0.95;
-            } else if (age > 6 && age < 9) {
+                icon = "🌑";
+            } else if (age >= 2 && age < 7) {
+                name = "Bulan Sabit Awal";
+                scoreMultiplier = 0.8;
+                icon = "🌒";
+            } else if (age >= 7 && age <= 8) {
                 name = "Suku Pertama (Air Mati)";
                 scoreMultiplier = 0.4;
-            } else if (age > 21 && age < 24) {
+                icon = "🌓";
+            } else if (age > 8 && age < 14) {
+                name = "Bulan Hampir Penuh";
+                scoreMultiplier = 0.7;
+                icon = "🌔";
+            } else if (age >= 14 && age <= 16) {
+                name = "Bulan Penuh (Full Moon)";
+                scoreMultiplier = 0.95;
+                icon = "🌕";
+            } else if (age > 16 && age < 22) {
+                name = "Bulan Menyusut";
+                scoreMultiplier = 0.7;
+                icon = "🌖";
+            } else if (age >= 22 && age <= 23) {
                 name = "Suku Terakhir (Air Mati)";
                 scoreMultiplier = 0.4;
+                icon = "🌗";
             } else {
-                name = "Fasa Transisi";
+                name = "Bulan Sabit Akhir";
                 scoreMultiplier = 0.7;
+                icon = "🌘";
             }
             
-            return { age, name, scoreMultiplier };
+            return { age, name, scoreMultiplier, icon };
+        }
+
+        function renderForecast(hourlyData) {
+            const container = document.getElementById('forecast-container');
+            container.innerHTML = '';
+            
+            const now = new Date();
+            let startIndex = 0;
+            // Cari index masa ramalan yang terhampir dengan waktu sekarang
+            for (let i = 0; i < hourlyData.time.length; i++) {
+                if (new Date(hourlyData.time[i]) >= new Date(now.getTime() - 3600000)) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            // Loop untuk paparan 24 jam ke depan (selang 2 jam)
+            for (let i = startIndex; i < startIndex + 24; i += 2) {
+                if (i >= hourlyData.time.length) break;
+                
+                const forecastTime = new Date(hourlyData.time[i]);
+                const timeString = forecastTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+                const temp = Math.round(hourlyData.temperature_2m[i]);
+                const wind = Math.round(hourlyData.wind_speed_10m[i]);
+                const wCode = hourlyData.weather_code[i];
+                const icon = getWeatherIcon(wCode);
+                
+                container.innerHTML += `
+                    <div class="forecast-item">
+                        <div class="forecast-time">${timeString}</div>
+                        <div class="forecast-icon">${icon}</div>
+                        <div class="forecast-temp">${temp}°C</div>
+                        <div class="forecast-wind">🌬️ ${wind} km/h</div>
+                    </div>
+                `;
+            }
         }
 
         async function fetchRealTimeData(lat, lon) {
             try {
-                // Dapatkan nama kawasan berpandukan lat/lon
+                // Dapatkan nama kawasan
                 fetchLocationName(lat, lon);
 
-                // Open-Meteo API
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset&timezone=auto`;
+                // Open-Meteo API (Termasuk data per jam untuk paparan 2 jam sekali - forecast 2 hari supaya cukup jam)
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset&timezone=auto&forecast_days=2`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Ralat Rangkaian");
                 const data = await response.json();
@@ -550,14 +597,16 @@
             const today = new Date();
             const moon = calculateMoonPhase(today);
             const currentWindKmh = weatherData.current.wind_speed_10m;
-            const currentTemp = weatherData.current.temperature_2m;
             const sunrise = new Date(weatherData.daily.sunrise[0]);
             const sunset = new Date(weatherData.daily.sunset[0]);
 
-            // Jana Jadual Dinamik Air Pasang Surut Berdasarkan Umur Bulan
+            // Jana Jadual Pasang Surut
             generateTideSchedule(moon.age);
 
-            // --- PENGIRAAN SKOR KOMPLEKS ---
+            // Render Forecast 2-Jam
+            renderForecast(weatherData.hourly);
+
+            // --- PENGIRAAN SKOR TANGKAPAN ---
             let finalScore = 80 * moon.scoreMultiplier;
             
             const hoursToSunrise = Math.abs(today - sunrise) / 36e5;
@@ -578,13 +627,8 @@
             finalScore = Math.max(0, Math.min(100, Math.round(finalScore)));
 
             // --- KEMASKINI UI ---
-            document.getElementById('moon-phase').innerText = moon.name;
-            document.getElementById('peak-time').innerText = `${sunrise.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} & ${sunset.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-            
-            document.getElementById('wind-speed').innerText = `${currentWindKmh} km/h`;
-            document.getElementById('wind-speed').classList.remove('loader-text');
-            document.getElementById('temp-val').innerText = `${currentTemp} °C`;
-            document.getElementById('temp-val').classList.remove('loader-text');
+            document.getElementById('moon-phase').innerHTML = `<div style="font-size:1.8rem; margin: 3px 0; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${moon.icon}</div><div>${moon.name}</div>`;
+            document.getElementById('peak-time').innerHTML = `${sunrise.toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit', hour12: true})} <br>&<br> ${sunset.toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit', hour12: true})}`;
             
             let color = "var(--success)";
             let status = "SANGAT AKTIF";
@@ -645,7 +689,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('Service Worker didaftarkan', reg);
+                    console.log('Service Worker didaftarkan berjaya untuk PancingPRO', reg);
                 }).catch(err => {
                     console.log('Pendaftaran SW gagal', err);
                 });
