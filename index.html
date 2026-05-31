@@ -370,16 +370,6 @@
         </div>
         
         <div class="glass-card">
-            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">🧠</span> ANALISIS KOMPREHENSIF GROQ AI</h3>
-            <div class="info-box ai-mode">
-                <span class="label" style="color: var(--ai-color);">Menjana Strategi Pintar 360°...</span>
-                <div id="ai-strategy-text" style="font-size: 0.85rem; line-height: 1.6; color: #fff;">
-                    Sila benarkan akses lokasi atau pilih di peta. Menunggu isyarat... 
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-card">
             <h3>🌊 WAKTU TEPAT PASANG SURUT</h3>
             
             <div id="tide-station-info" class="label" style="color: var(--accent-blue); margin-bottom: 10px; font-size: 0.8rem; background: rgba(0,210,255,0.1); padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent-blue);">
@@ -408,6 +398,16 @@
             <div class="info-box" style="border-left-color: #8b5cf6;">
                 <span class="label" id="hijri-date">Tarikh Hijrah: Mengira...</span>
                 <span id="hijri-forecast" style="font-size: 0.85rem; line-height: 1.5; color: #e2e8f0;">Memuat data petua...</span>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">🧠</span> ANALISIS STRATEGI PINTAR</h3>
+            <div class="info-box ai-mode">
+                <span class="label" style="color: var(--ai-color);">Menjana Strategi Pintar 360°...</span>
+                <div id="ai-strategy-text" style="font-size: 0.85rem; line-height: 1.6; color: #fff;">
+                    Sila benarkan akses lokasi atau pilih di peta. Menunggu isyarat... 
+                </div>
             </div>
         </div>
 
@@ -607,9 +607,9 @@
             }
         }
 
-        // --- INTEGRASI GROQ AI ---
+        // --- INTEGRASI AI ---
         function formatAIResponse(text) {
-            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b style="color: var(--accent-blue);">$1</b>');
             formatted = formatted.replace(/\*(.*?)\*/g, '<i>$1</i>');
             formatted = formatted.replace(/- /g, '<br>• ');
             formatted = formatted.replace(/\n/g, '<br>');
@@ -618,9 +618,9 @@
 
         async function fetchGroqAnalysis(location, weatherDesc, wind, moon, score) {
             const aiContainer = document.getElementById('ai-strategy-text');
-            aiContainer.innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar AI Groq (Berdasarkan Air & Cuaca 2-Jam)... Sila Tunggu.</span>';
+            aiContainer.innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar... Sila Tunggu.</span>';
             
-            const prompt = `Anda adalah pakar memancing profesional di Malaysia. Sila analisis data persekitaran lokasi ini secara komprehensif:\n\n📍 Lokasi: ${location}\n☁️ Cuaca & Angin: ${weatherDesc}, kelajuan angin ${wind} km/h\n🌕 Fasa Bulan: ${moon}\n🌊 Jadual Pasang Surut: ${window.tideSummaryText}\n⏱️ Ramalan Cuaca (Akan Datang): ${window.forecastSummaryText}\n\nTUGASAN AI:\n1. Analisis potensi tangkapan berdasarkan gabungan air pasang surut, ramalan cuaca terdekat, dan fasa bulan.\n2. Cadangkan strategi umpan, teknik memancing, dan kedalaman sasaran (surface/mid/bottom).\n3. Berikan amaran keselamatan ringkas jika jadual air dan angin mendatangkan bahaya.\n\nJawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai ringkas (bullet points).`;
+            const prompt = `Anda adalah pakar memancing profesional. Analisis data ini:\n📍 Lokasi: ${location}\n☁️ Cuaca & Angin: ${weatherDesc}, kelajuan ${wind} km/h\n🌕 Fasa Bulan: ${moon}\n🌊 Air: ${window.tideSummaryText}\n⏱️ Ramalan 2-Jam: ${window.forecastSummaryText}\n\nSila berikan analisis ringkas dan padat dalam format ini:\n**WAKTU IKAN AKTIF**: (Nyatakan waktu terbaik secara spesifik)\n**TEKNIK & KEDALAMAN**: (Cadangan teknik dan kedalaman)\n**UMPAN TERBAIK**: (Cadangan umpan)\n**AMARAN/NOTIS**: (Jika ada bahaya cuaca/angin)\n\nGunakan Bahasa Melayu. Pastikan poin penting di-boldkan. Jawab tanpa mukadimah panjang.`;
 
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
@@ -655,7 +655,7 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error("API Groq Dihalang atau Model Salah (HTTP " + response.status + ")");
+                if (!response.ok) throw new Error("API Dihalang atau Model Salah (HTTP " + response.status + ")");
                 const data = await response.json();
                 if (data.choices && data.choices.length > 0) {
                     aiContainer.innerHTML = formatAIResponse(data.choices[0].message.content);
@@ -663,8 +663,8 @@
                     throw new Error("Format data AI tidak sah");
                 }
             } catch (error) {
-                console.error("Groq Client Error:", error);
-                aiContainer.innerHTML = `Panggilan AI tergendala kerana sekatan pelayar atau masalah model pelayan. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan jadual pasang surut di atas.`;
+                console.error("AI Client Error:", error);
+                aiContainer.innerHTML = `Panggilan AI tergendala kerana sekatan pelayar atau masalah pelayan. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan jadual pasang surut di atas.`;
             }
         }
 
@@ -858,7 +858,7 @@
             document.getElementById('kill-status').style.color = "var(--warning)";
             document.getElementById('tide-table').innerHTML = '<tr><td colspan="3" class="loader-text" style="text-align:center;">Memuat Data...</td></tr>';
             document.getElementById('forecast-container').innerHTML = '<div class="loader-text" style="padding: 10px;">Mengemaskini ramalan 2-jam...</div>';
-            document.getElementById('ai-strategy-text').innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar AI Groq...</span>';
+            document.getElementById('ai-strategy-text').innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar...</span>';
             document.getElementById('alert-box').style.display = 'none';
         }
 
