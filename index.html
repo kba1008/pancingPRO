@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PancingPRO - Dashboard Cuaca & Air</title>
+    <title>PancingPRO AI - Dashboard Cuaca & Air</title>
     
     <meta name="theme-color" content="#020617">
     
-    <!-- PENYELESAIAN FORENSIK: Dynamic Manifest Injection untuk memintas ralat 'Link x jumpa' di Google Apps Script -->
+    <!-- Dynamic Manifest Injection -->
     <link id="manifest-link" rel="manifest" href="">
     <script>
         const manifestJSON = {
-            "name": "PancingPRO",
-            "short_name": "PancingPRO",
-            "description": "Dashboard Ramalan Memancing Pintar",
+            "name": "PancingPRO AI",
+            "short_name": "PancingPRO AI",
+            "description": "Dashboard Ramalan Memancing Pintar Dikuasakan oleh Groq AI",
             "start_url": window.location.href.split('?')[0],
             "display": "standalone",
             "background_color": "#020617",
@@ -40,6 +40,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+    <!-- Leaflet JS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         :root {
             --bg-dark: #020617;
@@ -49,6 +53,7 @@
             --success: #00ff88;
             --warning: #ffcc00;
             --danger: #ff4747;
+            --ai-color: #a855f7;
         }
 
         * {
@@ -66,7 +71,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 3D Background Canvas */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -76,7 +80,6 @@
             height: 100vh;
         }
 
-        /* Layout Utama (Mesra Telefon Pintar) */
         .app-container {
             max-width: 600px;
             margin: 0 auto;
@@ -86,7 +89,6 @@
             padding-bottom: 40px;
         }
 
-        /* Komponen Glassmorphism */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -99,10 +101,6 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .glass-card:active {
-            transform: scale(0.98);
-        }
-
         .header-status {
             display: flex;
             justify-content: space-between;
@@ -122,7 +120,6 @@
             font-size: 1.1rem;
         }
         
-        /* Typography Khusus */
         .score-container {
             text-align: center;
             position: relative;
@@ -148,19 +145,12 @@
             letter-spacing: 1.5px;
         }
 
-        /* Grid Layouts */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .grid-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
         .info-box {
             background: rgba(0,0,0,0.4);
             padding: 12px;
@@ -168,9 +158,10 @@
             border-left: 4px solid var(--accent-blue);
         }
 
-        .info-box.danger { border-left-color: var(--danger); }
-        .info-box.success { border-left-color: var(--success); }
-        .info-box.warning { border-left-color: var(--warning); }
+        .info-box.ai-mode {
+            border-left-color: var(--ai-color);
+            background: rgba(168, 85, 247, 0.1);
+        }
 
         .label {
             font-size: 0.7rem;
@@ -181,12 +172,6 @@
             letter-spacing: 0.5px;
         }
 
-        .value {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        /* Jadual Pasang Surut */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -217,7 +202,6 @@
             border-left: 3px solid var(--accent-blue);
         }
 
-        /* Badges */
         .badge {
             display: inline-block;
             padding: 4px 8px;
@@ -229,7 +213,6 @@
             margin-top: 2px;
         }
 
-        .bg-blue { background: var(--accent-blue); color: #000; }
         .bg-green { background: var(--success); color: #000; }
         .bg-red { background: var(--danger); color: #fff; }
         
@@ -237,6 +220,10 @@
             font-size: 0.85rem;
             color: var(--accent-blue);
             animation: pulse 1.5s infinite;
+        }
+
+        .ai-loader {
+            color: var(--ai-color);
         }
 
         @keyframes pulse {
@@ -255,7 +242,6 @@
             box-shadow: 0 0 8px var(--success);
         }
 
-        /* Ramalan Cuaca 2-Jam Scroll Horizontal */
         .forecast-scroll {
             display: flex;
             overflow-x: auto;
@@ -264,17 +250,7 @@
             scrollbar-width: thin;
             scrollbar-color: var(--accent-blue) rgba(0,0,0,0.2);
         }
-        .forecast-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-        .forecast-scroll::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-        }
-        .forecast-scroll::-webkit-scrollbar-thumb {
-            background: var(--accent-blue);
-            border-radius: 10px;
-        }
+        
         .forecast-item {
             background: rgba(0,0,0,0.3);
             padding: 10px;
@@ -284,25 +260,89 @@
             border: 1px solid rgba(255,255,255,0.05);
             flex-shrink: 0;
         }
-        .forecast-time {
-            font-size: 0.75rem;
-            color: var(--accent-blue);
-            font-weight: 600;
-            margin-bottom: 5px;
+        
+        .forecast-time { font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 5px; }
+        .forecast-icon { font-size: 1.8rem; margin: 5px 0; }
+        .forecast-temp { font-size: 0.9rem; font-weight: bold; color: #fff; }
+        .forecast-wind { font-size: 0.7rem; opacity: 0.8; margin-top: 3px; }
+
+        .tide-source-text {
+            font-size: 0.65rem;
+            color: #a0aec0;
+            margin-top: 8px;
+            font-style: italic;
+            text-align: justify;
         }
-        .forecast-icon {
-            font-size: 1.8rem;
-            margin: 5px 0;
+        
+        .select-zone {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 1px solid var(--accent-blue);
+            padding: 8px;
+            border-radius: 8px;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            outline: none;
         }
-        .forecast-temp {
-            font-size: 0.9rem;
+
+        /* New Top Controls Styling */
+        .mode-btn {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: 1px solid var(--glass-border);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .mode-btn.active {
+            background: var(--accent-blue);
+            color: #000;
             font-weight: bold;
-            color: #fff;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
         }
-        .forecast-wind {
-            font-size: 0.7rem;
-            opacity: 0.8;
-            margin-top: 3px;
+        .refresh-btn {
+            background: var(--success);
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+            transition: all 0.3s;
+        }
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+        #map-container {
+            display: none;
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--accent-blue);
+            margin-top: 15px;
+            z-index: 1;
+        }
+        .leaflet-container {
+            background: #0f172a;
+            font-family: 'Poppins', sans-serif;
+        }
+        .leaflet-popup-content-wrapper {
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            border: 1px solid var(--accent-blue);
+        }
+        .leaflet-popup-tip {
+            background: var(--accent-blue);
         }
     </style>
 </head>
@@ -312,6 +352,18 @@
 
     <div class="app-container">
         
+        <!-- Kawalan Peta & Segar Semula -->
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <button id="btn-auto" class="mode-btn active" onclick="setMode('auto')">📡 Auto GPS</button>
+                    <button id="btn-manual" class="mode-btn" onclick="setMode('manual')">🗺️ Peta Manual</button>
+                </div>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+            </div>
+            <div id="map-container"></div>
+        </div>
+
         <div id="alert-box" class="glass-card" style="display: none; border-color: var(--danger); background: rgba(255, 71, 71, 0.15);">
             <h3 style="color: var(--danger); display: flex; align-items: center;">
                 <span style="font-size: 1.5rem; margin-right: 10px;">⚠️</span> AMARAN KESELAMATAN
@@ -323,7 +375,7 @@
             <div class="header-status">
                 <span id="gps-loc" style="display: flex; align-items: center;">
                     <span class="indicator-dot" id="gps-dot" style="background-color: var(--warning);"></span> 
-                    <span id="area-name">Mengesan Satelit...</span>
+                    <span id="area-name">Mengesan Satelit (Ketepatan Tinggi)...</span>
                 </span>
                 <span id="current-date" style="font-weight: 600;">--/--/----</span>
             </div>
@@ -347,86 +399,90 @@
         </div>
         
         <div class="glass-card">
-            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">🌙</span> RAMALAN TRADISIONAL (HIJRAH)</h3>
-            <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 10px;">* Menggunakan kaedah kalendar Islam & petua memancing orang lama.</p>
-            <div class="info-box" style="border-left-color: #8b5cf6;">
-                <span class="label" id="hijri-date">Tarikh Hijrah: Mengira...</span>
-                <span id="hijri-forecast" style="font-size: 0.85rem; line-height: 1.5; color: #e2e8f0;">Memuat data petua...</span>
+            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">🧠</span> ANALISIS KOMPREHENSIF GROQ AI</h3>
+            <div class="info-box ai-mode">
+                <span class="label" style="color: var(--ai-color);">Menjana Strategi Pintar 360°...</span>
+                <div id="ai-strategy-text" style="font-size: 0.85rem; line-height: 1.6; color: #fff;">
+                    Sila benarkan akses lokasi atau pilih di peta. Menunggu isyarat... 
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h3>🌊 WAKTU TEPAT PASANG SURUT</h3>
+            
+            <label class="label" style="color: var(--accent-blue);">Pilih Zon Pantai Anda (Untuk Ketepatan Masa):</label>
+            <select id="zone-select" class="select-zone" onchange="updateTides()">
+                <option value="5.5">Semenanjung - Pantai Barat (Lunitidal: ~5.5 J)</option>
+                <option value="10.0">Semenanjung - Pantai Timur (Lunitidal: ~10.0 J)</option>
+                <option value="8.0">Sabah / Sarawak (Lunitidal: ~8.0 J)</option>
+            </select>
+
+            <table id="tide-table">
+                <tr><th>Kejadian</th><th>Waktu (Anggaran)</th><th>Aktiviti</th></tr>
+                <tr><td colspan="3" class="loader-text" style="text-align:center;">Memuat Data Astronomi...</td></tr>
+            </table>
+            
+            <div class="tide-source-text">
+                <b>Sumber Data:</b> Kiraan <i>Algoritma Astronomi (Fasa Bulan)</i> beserta <i>Lunitidal Interval</i>. Ralat ketidaktepatan selama seminggu berpunca dari ketiadaan zon lokasi khusus. Kini, masa Mula Pasang/Surut ditala secara saintifik mengikut zon pilihan. Untuk 100% ketepatan mutlak, sila rujuk stesen ukur JUPEM tempatan.
             </div>
         </div>
 
         <div class="glass-card">
             <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">⏱️</span> RAMALAN CUACA LIVE (2-JAM)</h3>
             <div id="forecast-container" class="forecast-scroll">
-                <div class="loader-text" style="padding: 10px;">Memuat turun data ramalan dunia...</div>
-            </div>
-            <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 0; margin-top: 10px;">* Tatal ke kanan untuk ramalan akan datang. Masa berlalu tidak dipaparkan.</p>
-        </div>
-
-        <div class="glass-card">
-            <h3>🌊 DINAMIK ARUS & PASANG SURUT</h3>
-            <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 10px;">* Anggaran berpandukan fasa bulan maritim Malaysia.</p>
-            <table id="tide-table">
-                <tr>
-                    <th>Fasa Air</th>
-                    <th>Status</th>
-                    <th>Aktiviti Ikan</th>
-                    <th>Waktu (Anggaran)</th>
-                </tr>
-                <tr><td colspan="4" class="loader-text" style="text-align:center;">Memuat...</td></tr>
-            </table>
-        </div>
-
-        <div class="glass-card">
-            <h3>🎣 STRATEGI & CADANGAN UMPAN</h3>
-            <div class="grid-list">
-                <div class="info-box success">
-                    <span class="label">Tindakan Disarankan Berdasarkan Lokasi & Waktu Semasa</span>
-                    <span id="strategy-text" style="font-size: 0.85rem; line-height: 1.5;">Sila benarkan akses lokasi untuk mendapatkan strategi tepat.</span>
-                </div>
+                <div class="loader-text" style="padding: 10px;">Memuat turun data ramalan dunia Open-Meteo...</div>
             </div>
         </div>
         
-        <div style="text-align: center; margin-top: 15px; font-size: 0.65rem; opacity: 0.5; color: #fff; line-height: 1.6;">
-            <strong>SUMBER DATA DIIKTIRAF DUNIA:</strong><br>
-            API Meteorologi Open-Meteo & Pertubuhan Meteorologi Sedunia (WMO)
+        <div class="glass-card">
+            <h3 style="display: flex; align-items: center;"><span style="margin-right: 10px;">🌙</span> RAMALAN TRADISIONAL (HIJRAH)</h3>
+            <div class="info-box" style="border-left-color: #8b5cf6;">
+                <span class="label" id="hijri-date">Tarikh Hijrah: Mengira...</span>
+                <span id="hijri-forecast" style="font-size: 0.85rem; line-height: 1.5; color: #e2e8f0;">Memuat data petua...</span>
+            </div>
         </div>
 
     </div>
 
     <script>
-        // --- 1. ENJIN 3D (Simulasi Air Bergelora) --- //
-        let scene, camera, renderer, water, clock;
+        // Pembolehubah Global
+        window.currentMoonAge = 0;
+        window.currentLat = null;
+        window.currentLon = null;
+        window.appMode = 'auto'; // 'auto' or 'manual'
+        window.tideSummaryText = "";
+        window.forecastSummaryText = "";
+        window.latestWeatherData = {
+            location: "",
+            weatherDesc: "",
+            wind: 0,
+            moonName: "",
+            score: 0
+        };
 
+        // --- ENJIN 3D ---
+        let scene, camera, renderer, water, clock;
         function init3D() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x020617, 0.04);
-
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(renderer.domElement);
-
             const light = new THREE.DirectionalLight(0x00d2ff, 1.5);
             light.position.set(0, 10, 5);
             scene.add(light);
             scene.add(new THREE.AmbientLight(0x404040, 2.5));
-
             const geometry = new THREE.PlaneGeometry(60, 60, 80, 80);
             const material = new THREE.MeshPhongMaterial({
-                color: 0x0ea5e9,
-                transparent: true,
-                opacity: 0.35,
-                wireframe: true,
-                shininess: 100
+                color: 0x0ea5e9, transparent: true, opacity: 0.35, wireframe: true, shininess: 100
             });
-            
             water = new THREE.Mesh(geometry, material);
             water.rotation.x = -Math.PI / 2;
             water.position.y = -6;
             scene.add(water);
-
             camera.position.set(0, 3, 15);
             clock = new THREE.Clock();
         }
@@ -434,7 +490,6 @@
         function animate3D() {
             requestAnimationFrame(animate3D);
             const t = clock.getElapsedTime();
-            
             const vertices = water.geometry.attributes.position.array;
             for (let i = 0; i < vertices.length; i += 3) {
                 const x = vertices[i];
@@ -445,48 +500,176 @@
             renderer.render(scene, camera);
         }
 
-        // --- PENTERJEMAH IKON CUACA (WMO Code) --- //
+        // --- PETA LEAFLET (MOD MANUAL) ---
+        let map, marker;
+        function initMap() {
+            map = L.map('map-container').setView([4.2105, 101.9758], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                if(marker) map.removeLayer(marker);
+                marker = L.marker(e.latlng).addTo(map);
+                window.currentLat = e.latlng.lat;
+                window.currentLon = e.latlng.lng;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                fetchRealTimeData(window.currentLat, window.currentLon);
+            });
+
+            if(window.currentLat && window.currentLon) {
+                marker = L.marker([window.currentLat, window.currentLon]).addTo(map);
+                map.setView([window.currentLat, window.currentLon], 10);
+            }
+        }
+
+        function setMode(mode) {
+            window.appMode = mode;
+            document.getElementById('btn-auto').classList.remove('active');
+            document.getElementById('btn-manual').classList.remove('active');
+            
+            if (mode === 'auto') {
+                document.getElementById('btn-auto').classList.add('active');
+                document.getElementById('map-container').style.display = 'none';
+                initApp(); 
+            } else {
+                document.getElementById('btn-manual').classList.add('active');
+                document.getElementById('map-container').style.display = 'block';
+                if(!map) initMap();
+                else map.invalidateSize();
+            }
+        }
+
+        function refreshData() {
+            if (window.currentLat && window.currentLon) {
+                fetchRealTimeData(window.currentLat, window.currentLon);
+            } else {
+                initApp();
+            }
+        }
+
+        // --- UTILITI CUACA & LOKASI ---
         function getWeatherIcon(code) {
             if (code === 0) return "☀️";
-            if (code === 1 || code === 2 || code === 3) return "⛅";
+            if (code <= 3) return "⛅";
             if (code >= 45 && code <= 48) return "🌫️";
             if (code >= 51 && code <= 67) return "🌧️";
             if (code >= 71 && code <= 77) return "❄️";
             if (code >= 80 && code <= 82) return "🌦️";
-            if (code >= 95 && code <= 99) return "⛈️";
+            if (code >= 95) return "⛈️";
             return "🌡️";
         }
 
-        // --- 2. REVERSE GEOCODING (Dapatkan Nama Kawasan) --- //
+        function getWeatherDescription(code) {
+            if (code === 0) return "Cerah";
+            if (code <= 3) return "Berawan Sebahagian";
+            if (code >= 45 && code <= 48) return "Berkabus";
+            if (code >= 51 && code <= 67) return "Hujan";
+            if (code >= 80 && code <= 82) return "Hujan Renyai";
+            if (code >= 95) return "Ribut Petir";
+            return "Tidak Menentu";
+        }
+
+        let currentAreaName = "Kawasan Perairan";
+
         async function fetchLocationName(lat, lon) {
             try {
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept-Language': 'ms-MY, ms'
-                    }
-                });
-                
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`;
+                const response = await fetch(url, { headers: { 'Accept-Language': 'ms-MY, ms' } });
                 if (!response.ok) throw new Error("Gagal reverse geocode");
                 const data = await response.json();
                 
-                let area = data.address.city || data.address.town || data.address.county || data.address.state || "Kawasan Perairan";
-                document.getElementById('area-name').innerHTML = `<b>${area}</b> (${lat.toFixed(3)}, ${lon.toFixed(3)})`;
+                currentAreaName = data.address.village || data.address.suburb || data.address.town || data.address.city || data.address.county || data.address.state || "Perairan Terbuka";
+                
+                document.getElementById('area-name').innerHTML = `<b>${currentAreaName}</b> (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
                 document.getElementById('gps-dot').style.backgroundColor = "var(--success)";
             } catch (error) {
-                console.error("Gagal dapatkan nama kawasan:", error);
-                document.getElementById('area-name').innerText = `Koordinat: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
-                document.getElementById('gps-dot').style.backgroundColor = "var(--success)";
+                document.getElementById('area-name').innerText = `Koordinat: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
             }
         }
 
-        // --- 3. JANA JADUAL PASANG SURUT --- //
-        function generateTideSchedule(moonAge) {
-            let baseHigh = 5.5 + (moonAge * 0.833);
-            let high1 = baseHigh % 12;
-            let high2 = (high1 + 12.4) % 24;
-            let low1 = (high1 + 6.2) % 24;
-            let low2 = (high1 + 18.6) % 24;
+        // --- INTEGRASI GROQ AI ---
+        function formatAIResponse(text) {
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            formatted = formatted.replace(/\*(.*?)\*/g, '<i>$1</i>');
+            formatted = formatted.replace(/- /g, '<br>• ');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        async function fetchGroqAnalysis(location, weatherDesc, wind, moon, score) {
+            const aiContainer = document.getElementById('ai-strategy-text');
+            aiContainer.innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar AI Groq (Berdasarkan Air & Cuaca 2-Jam)... Sila Tunggu.</span>';
+            
+            const prompt = `Anda adalah pakar memancing profesional di Malaysia. Sila analisis data persekitaran lokasi ini secara komprehensif:
+
+📍 Lokasi: ${location}
+☁️ Cuaca & Angin: ${weatherDesc}, kelajuan angin ${wind} km/h
+🌕 Fasa Bulan: ${moon}
+🌊 Jadual Pasang Surut: ${window.tideSummaryText}
+⏱️ Ramalan Cuaca (Akan Datang): ${window.forecastSummaryText}
+
+TUGASAN AI:
+1. Analisis potensi tangkapan berdasarkan gabungan air pasang surut, ramalan cuaca terdekat, dan fasa bulan.
+2. Cadangkan strategi umpan, teknik memancing, dan kedalaman sasaran (surface/mid/bottom).
+3. Berikan amaran keselamatan ringkas jika jadual air dan angin mendatangkan bahaya.
+
+Jawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai ringkas (bullet points).`;
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        aiContainer.innerHTML = formatAIResponse(response);
+                    })
+                    .withFailureHandler(function(error) {
+                        console.error("Ralat Server GAS:", error);
+                        fallbackClientGroq(prompt, aiContainer, score);
+                    })
+                    .fetchGroqAI(prompt);
+            } else {
+                fallbackClientGroq(prompt, aiContainer, score);
+            }
+        }
+
+        async function fallbackClientGroq(prompt, aiContainer, score) {
+            const apiKey = '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';
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-8b-8192",
+                        messages: [{"role": "user", "content": prompt}],
+                        temperature: 0.7,
+                        max_tokens: 800
+                    })
+                });
+                
+                if (!response.ok) throw new Error("API Groq Dihalang");
+                const data = await response.json();
+                aiContainer.innerHTML = formatAIResponse(data.choices[0].message.content);
+            } catch (error) {
+                console.error("Groq Client Error:", error);
+                aiContainer.innerHTML = `Analisis AI dihalang oleh pelayar. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan <i>${window.tideSummaryText}</i> tempatan.`;
+            }
+        }
+
+        // --- LOGIK TERAS APLIKASI ---
+        function updateTides(skipAI) {
+            if(window.currentMoonAge === 0) return;
+            if(typeof skipAI !== 'boolean') skipAI = false;
+            
+            const lunitidalInterval = parseFloat(document.getElementById('zone-select').value);
+            let transitTime = (window.currentMoonAge * 24) / 29.530588;
+            
+            let h1 = (transitTime + lunitidalInterval) % 12;
+            let l1 = (h1 + 6.21) % 24;
+            let h2 = (h1 + 12.42) % 24;
+            let l2 = (l1 + 12.42) % 24;
             
             function formatTime(hDecimal) {
                 let h = Math.floor(hDecimal);
@@ -494,312 +677,218 @@
                 if (h < 0) h += 24;
                 h = h % 24;
                 let ampm = h >= 12 ? 'PM' : 'AM';
-                let hour = h % 12;
-                if (hour === 0) hour = 12;
+                let hour = h % 12; if (hour === 0) hour = 12;
                 return `${hour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
             }
 
+            const s1 = formatTime(h1), s2 = formatTime(h2);
+            const p1 = formatTime(l1), p2 = formatTime(l2);
+
+            window.tideSummaryText = `Arus Mula Surut: ${s1} & ${s2}, Arus Mula Pasang: ${p1} & ${p2}`;
+            
             let html = `
-                <tr>
-                    <th>Fasa Air</th>
-                    <th>Status</th>
-                    <th>Aktiviti Ikan</th>
-                    <th>Waktu (Anggaran)</th>
-                </tr>
-                <tr>
-                    <td>Pasang Penuh</td>
-                    <td>Air Tegak</td>
-                    <td><span class="badge bg-red">Pasif</span></td>
-                    <td>${formatTime(high1)} & ${formatTime(high2)}</td>
-                </tr>
+                <tr><th>Kejadian</th><th>Waktu Tepat (Anggaran)</th><th>Aktiviti</th></tr>
                 <tr class="highlight-row">
-                    <td>Mula Surut</td>
-                    <td>Tolak Luar</td>
+                    <td>⬇️ MULA SURUT<br><small style="font-weight:normal;">(Arus Tolak Luar)</small></td>
+                    <td style="color:var(--accent-blue); font-weight:bold; font-size: 0.95rem;">${s1} & ${s2}</td>
                     <td><span class="badge bg-green">Sangat Aktif</span></td>
-                    <td>${formatTime(high1 + 1.5)} & ${formatTime(high2 + 1.5)}</td>
                 </tr>
                 <tr>
-                    <td>Surut Terendah</td>
-                    <td>Air Mati</td>
+                    <td>🌑 Surut Penuh<br><small style="font-weight:normal;">(Air Mati)</small></td>
+                    <td>${formatTime(l1 - 1.5)} & ${formatTime(l2 - 1.5)}</td>
                     <td><span class="badge bg-red">Pasif</span></td>
-                    <td>${formatTime(low1)} & ${formatTime(low2)}</td>
                 </tr>
                 <tr class="highlight-row">
-                    <td>Mula Pasang</td>
-                    <td>Arus Laju</td>
-                    <td><span class="badge bg-green">Aktif</span></td>
-                    <td>${formatTime(low1 + 1.5)} & ${formatTime(low2 + 1.5)}</td>
+                    <td>⬆️ MULA PASANG<br><small style="font-weight:normal;">(Arus Laju Masuk)</small></td>
+                    <td style="color:var(--success); font-weight:bold; font-size: 0.95rem;">${p1} & ${p2}</td>
+                    <td><span class="badge bg-green">Ikan Aktif</span></td>
+                </tr>
+                <tr>
+                    <td>🌕 Pasang Penuh<br><small style="font-weight:normal;">(Air Tegak / Bunga)</small></td>
+                    <td>${formatTime(h1 - 1.5)} & ${formatTime(h2 - 1.5)}</td>
+                    <td><span class="badge bg-red">Pasif</span></td>
                 </tr>
             `;
             document.getElementById('tide-table').innerHTML = html;
+
+            // Refresh AI jika pengguna menukar zon pantai secara manual
+            if (!skipAI && window.latestWeatherData.location) {
+                fetchGroqAnalysis(
+                    window.latestWeatherData.location, 
+                    window.latestWeatherData.weatherDesc, 
+                    window.latestWeatherData.wind, 
+                    window.latestWeatherData.moonName, 
+                    window.latestWeatherData.score
+                );
+            }
         }
         
-        // --- 4. RAMALAN KALENDAR ISLAM (HIJRAH) --- //
         function processHijriForecast() {
             try {
                 const today = new Date();
-                // Dapatkan tarikh penuh
                 const hijriFormatter = new Intl.DateTimeFormat('ms-MY-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'});
-                const hijriDateStr = hijriFormatter.format(today);
-                
-                // Dapatkan angka hari sahaja untuk logik petua
-                const hijriDayFormatter = new Intl.DateTimeFormat('en-US-u-ca-islamic', {day: 'numeric'});
-                const hijriDay = parseInt(hijriDayFormatter.format(today), 10);
-                
-                document.getElementById('hijri-date').innerText = `Tarikh Hijrah: ${hijriDateStr}`;
-                
+                document.getElementById('hijri-date').innerText = `Tarikh Hijrah: ${hijriFormatter.format(today)}`;
+                const hijriDay = parseInt(new Intl.DateTimeFormat('en-US-u-ca-islamic', {day: 'numeric'}).format(today), 10);
                 let petua = "";
-                if (hijriDay >= 1 && hijriDay <= 5) {
-                    petua = "Awal Bulan (Bulan Sabit): Arus mula aktif tetapi sederhana. Sesuai memancing pesisir pantai. Ikan mula galak mencari makan.";
-                } else if (hijriDay >= 6 && hijriDay <= 11) {
-                    petua = "Fasa Suku Pertama (Air Mati): Arus perlahan. Sangat sesuai untuk pancingan dasar (bottom) di laut dalam kerana batu ladung mudah mencecah dasar.";
-                } else if (hijriDay >= 12 && hijriDay <= 16) {
-                    petua = "Bulan Purnama: Air pasang besar dan arus laju. Ikan pemangsa sangat aktif pada waktu malam. Waktu terbaik memburu siakap dan udang galah.";
-                } else if (hijriDay >= 17 && hijriDay <= 22) {
-                    petua = "Fasa Suku Ketiga (Air Menyusut): Arus laut kembali perlahan. Ikan pertengahan air mula aktif. Sesuai menggunakan teknik jigging dan casting.";
-                } else if (hijriDay >= 23 && hijriDay <= 28) {
-                    petua = "Hujung Bulan (Air Mati): Keadaan laut lebih tenang. Ikan bersaiz besar kurang aktif, tumpukan pada spesies ikan kecil di kawasan karang dan pesisir.";
-                } else {
-                    petua = "Bulan Gelap (Akhir Bulan): Penglihatan ikan terbatas di permukaan. Sangat sesuai memancing ikan yang bergantung pada deria bau (pari, sembilang) menggunakan umpan peram.";
-                }
-                
+                if (hijriDay >= 1 && hijriDay <= 5) petua = "Awal Bulan: Arus mula aktif tetapi sederhana. Sesuai pesisir pantai.";
+                else if (hijriDay >= 6 && hijriDay <= 11) petua = "Suku Pertama (Air Mati): Arus perlahan. Sesuai pancingan dasar di laut dalam.";
+                else if (hijriDay >= 12 && hijriDay <= 16) petua = "Purnama: Air pasang besar. Ikan pemangsa aktif waktu malam.";
+                else if (hijriDay >= 17 && hijriDay <= 22) petua = "Suku Ketiga: Arus laut menyusut. Sesuai teknik jigging dan casting.";
+                else if (hijriDay >= 23 && hijriDay <= 28) petua = "Hujung Bulan (Air Mati): Laut tenang. Tumpukan spesies di kawasan karang.";
+                else petua = "Bulan Gelap: Penglihatan terbatas. Gunakan umpan berbau kuat (peram).";
                 document.getElementById('hijri-forecast').innerText = petua;
-            } catch(e) {
-                document.getElementById('hijri-date').innerText = "Tarikh Hijrah: Tidak Disokong Peranti";
-                document.getElementById('hijri-forecast').innerText = "Sistem pelayar anda tidak menyokong fungsi kalendar Islam.";
-            }
+            } catch(e) {}
         }
 
-        // --- 5. LOGIK ALGORITMA 100% LOKASI & CUACA --- //
         function calculateMoonPhase(date) {
-            const lp = 2551443;
-            const now = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 20, 35, 0);
-            const new_moon = new Date(1970, 0, 7, 20, 35, 0);
-            const phase = ((now.getTime() - new_moon.getTime()) / 1000) % lp;
+            const phase = ((date.getTime() - new Date(1970, 0, 7, 20, 35, 0).getTime()) / 1000) % 2551443;
             const age = Math.floor(phase / (24 * 3600));
-            
-            let name, scoreMultiplier, icon;
-            if (age < 2 || age > 28) {
-                name = "Bulan Gelap";
-                scoreMultiplier = 1.0;
-                icon = "🌑";
-            } else if (age >= 2 && age < 7) {
-                name = "Bulan Sabit Awal";
-                scoreMultiplier = 0.8;
-                icon = "🌒";
-            } else if (age >= 7 && age <= 8) {
-                name = "Suku Pertama (Air Mati)";
-                scoreMultiplier = 0.4;
-                icon = "🌓";
-            } else if (age > 8 && age < 14) {
-                name = "Bulan Hampir Penuh";
-                scoreMultiplier = 0.7;
-                icon = "🌔";
-            } else if (age >= 14 && age <= 16) {
-                name = "Bulan Penuh (Purnama)";
-                scoreMultiplier = 0.95;
-                icon = "🌕";
-            } else if (age > 16 && age < 22) {
-                name = "Bulan Menyusut";
-                scoreMultiplier = 0.7;
-                icon = "🌖";
-            } else if (age >= 22 && age <= 23) {
-                name = "Suku Terakhir (Air Mati)";
-                scoreMultiplier = 0.4;
-                icon = "🌗";
-            } else {
-                name = "Bulan Sabit Akhir";
-                scoreMultiplier = 0.7;
-                icon = "🌘";
-            }
-            
-            return { age, name, scoreMultiplier, icon };
+            let name, score, icon;
+            if (age < 2 || age > 28) { name = "Bulan Gelap"; score = 1.0; icon = "🌑"; }
+            else if (age >= 14 && age <= 16) { name = "Purnama"; score = 0.95; icon = "🌕"; }
+            else if (age >= 7 && age <= 8 || age >= 22 && age <= 23) { name = "Air Mati"; score = 0.4; icon = "🌗"; }
+            else { name = "Bulan Separa"; score = 0.7; icon = "🌔"; }
+            return { age, name, scoreMultiplier: score, icon };
         }
 
         function renderForecast(hourlyData) {
             const container = document.getElementById('forecast-container');
             container.innerHTML = '';
-            
             const now = new Date();
-            let startIndex = -1;
-            
-            // Cari index masa depan pertama
-            for (let i = 0; i < hourlyData.time.length; i++) {
-                if (new Date(hourlyData.time[i]) >= now) {
-                    startIndex = i;
-                    break;
-                }
-            }
-
+            let startIndex = hourlyData.time.findIndex(t => new Date(t) >= now);
             if (startIndex === -1) startIndex = 0;
 
-            let lastDate = "";
             let count = 0;
+            let summaryArr = [];
 
-            // Paparan hadapan sahaja, lompat 2 jam, set maksimum 12 paparan (24 jam)
-            for (let i = startIndex; i < hourlyData.time.length && count < 12; i += 2) {
-                const forecastTime = new Date(hourlyData.time[i]);
-                
-                const timeString = forecastTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
-                const dateString = forecastTime.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' });
-                
+            for (let i = startIndex; i < hourlyData.time.length && count < 6; i += 2) {
+                const t = new Date(hourlyData.time[i]);
                 const temp = Math.round(hourlyData.temperature_2m[i]);
                 const wind = Math.round(hourlyData.wind_speed_10m[i]);
                 const wCode = hourlyData.weather_code[i];
-                const icon = getWeatherIcon(wCode);
-                
-                let dateBadge = "";
-                if (dateString !== lastDate) {
-                    dateBadge = `<div style="font-size: 0.65rem; background: var(--accent-blue); color: #000; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; font-weight:bold; display: inline-block;">${dateString}</div>`;
-                    lastDate = dateString;
-                }
+                const wDesc = getWeatherDescription(wCode);
+                const timeStr = t.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
                 
                 container.innerHTML += `
                     <div class="forecast-item">
-                        ${dateBadge}
-                        <div class="forecast-time">${timeString}</div>
-                        <div class="forecast-icon">${icon}</div>
+                        <div class="forecast-time">${timeStr}</div>
+                        <div class="forecast-icon">${getWeatherIcon(wCode)}</div>
                         <div class="forecast-temp">${temp}°C</div>
                         <div class="forecast-wind">🌬️ ${wind} km/h</div>
                     </div>
                 `;
+                
+                summaryArr.push(`${timeStr} (${wDesc}, Angin: ${wind}km/h)`);
                 count++;
             }
+            window.forecastSummaryText = summaryArr.join(" | ");
+        }
+
+        function showLoadingState() {
+            document.getElementById('area-name').innerText = "Mengambil data satelit...";
+            document.getElementById('kill-score').innerText = "--%";
+            document.getElementById('kill-score').style.color = "var(--success)";
+            document.getElementById('kill-status').innerText = "MEMUAT...";
+            document.getElementById('kill-status').style.color = "var(--warning)";
+            document.getElementById('tide-table').innerHTML = '<tr><td colspan="3" class="loader-text" style="text-align:center;">Memuat Data...</td></tr>';
+            document.getElementById('forecast-container').innerHTML = '<div class="loader-text" style="padding: 10px;">Mengemaskini ramalan 2-jam...</div>';
+            document.getElementById('ai-strategy-text').innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar AI Groq...</span>';
+            document.getElementById('alert-box').style.display = 'none';
         }
 
         async function fetchRealTimeData(lat, lon) {
+            showLoadingState();
             try {
-                fetchLocationName(lat, lon);
-
-                // Forecast 3 hari menjamin cukup data unjuran 24 jam ke hadapan pada bila-bila masa
+                await fetchLocationName(lat, lon);
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset&timezone=auto&forecast_days=3`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Ralat Rangkaian");
-                const data = await response.json();
-                
-                processAdvancedScore(data, lat, lon);
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Ralat Rangkaian Open-Meteo");
+                processAdvancedScore(await res.json(), lat, lon);
             } catch (error) {
-                console.error("Gagal ambil data cuaca:", error);
-                document.getElementById('kill-status').innerText = "RALAT DATA LOKASI";
-                document.getElementById('gps-dot').style.backgroundColor = "var(--danger)";
+                document.getElementById('kill-status').innerText = "RALAT DATA CUACA LOKASI";
             }
         }
 
-        function processAdvancedScore(weatherData, lat, lon) {
+        function processAdvancedScore(data, lat, lon) {
             const today = new Date();
             const moon = calculateMoonPhase(today);
-            const currentWindKmh = weatherData.current.wind_speed_10m;
-            const sunrise = new Date(weatherData.daily.sunrise[0]);
-            const sunset = new Date(weatherData.daily.sunset[0]);
+            const wCode = data.current.weather_code;
+            const wind = Math.round(data.current.wind_speed_10m);
+            const wDesc = getWeatherDescription(wCode);
 
-            generateTideSchedule(moon.age);
-            renderForecast(weatherData.hourly);
-
-            // --- PENGIRAAN SKOR --- //
             let finalScore = 80 * moon.scoreMultiplier;
-            
-            const hoursToSunrise = Math.abs(today - sunrise) / 36e5;
-            const hoursToSunset = Math.abs(today - sunset) / 36e5;
-            
-            if (hoursToSunrise <= 2 || hoursToSunset <= 2) {
-                finalScore += 20;
-            }
-
             let alertMode = false;
-            if (currentWindKmh > 25) {
-                finalScore -= 30;
-                alertMode = true;
-            } else if (currentWindKmh > 15) {
-                finalScore -= 10;
-            }
-
+            if (wind > 25) { finalScore -= 30; alertMode = true; }
+            else if (wind > 15) { finalScore -= 10; }
             finalScore = Math.max(0, Math.min(100, Math.round(finalScore)));
 
-            // --- KEMASKINI UI --- //
-            document.getElementById('moon-phase').innerHTML = `<div style="font-size:1.8rem; margin: 3px 0; text-shadow: 0 0 10px rgba(255,255,255,0.3);">${moon.icon}</div><div>${moon.name}</div>`;
-            document.getElementById('peak-time').innerHTML = `${sunrise.toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit', hour12: true})} <br>&<br> ${sunset.toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit', hour12: true})}`;
-            
-            let color = "var(--success)";
-            let status = "SANGAT AKTIF";
-            if (finalScore < 50) {
-                color = "var(--danger)";
-                status = "PASIF / BERISIKO";
-            } else if (finalScore < 75) {
-                color = "var(--warning)";
-                status = "SEDERHANA";
-            }
+            window.latestWeatherData = {
+                location: currentAreaName,
+                weatherDesc: wDesc,
+                wind: wind,
+                moonName: moon.name,
+                score: finalScore
+            };
 
-            const scoreEl = document.getElementById('kill-score');
-            scoreEl.innerText = `${finalScore}%`;
-            scoreEl.style.color = color;
-            scoreEl.style.textShadow = `0 0 20px ${color}`;
-            
-            const statusEl = document.getElementById('kill-status');
-            statusEl.innerText = status;
-            statusEl.style.color = color;
+            window.currentMoonAge = moon.age;
+            updateTides(true); 
+            renderForecast(data.hourly);
 
-            let strategy = "";
+            document.getElementById('moon-phase').innerHTML = `<div style="font-size:1.8rem; margin: 3px 0;">${moon.icon}</div><div>${moon.name}</div>`;
+            document.getElementById('peak-time').innerHTML = `${new Date(data.daily.sunrise[0]).toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'})} <br>&<br> ${new Date(data.daily.sunset[0]).toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'})}`;
+            
+            let color = finalScore < 50 ? "var(--danger)" : (finalScore < 75 ? "var(--warning)" : "var(--success)");
+            document.getElementById('kill-score').innerText = `${finalScore}%`;
+            document.getElementById('kill-score').style.color = color;
+            document.getElementById('kill-status').innerText = finalScore < 50 ? "PASIF" : "AKTIF";
+            document.getElementById('kill-status').style.color = color;
+
             if (alertMode) {
                 document.getElementById('alert-box').style.display = 'block';
-                document.getElementById('alert-msg').innerText = `Angin direkodkan pada ${currentWindKmh}km/h. Sangat berbahaya untuk bot kecil. Sila memancing di kawasan muara tertutup atau batalkan trip.`;
-                strategy = "Elakkan memancing laut terbuka. Cari port terlindung seperti bawah jambatan atau muara sungai.";
-            } else if (finalScore >= 80) {
-                strategy = "Kondisi cemerlang! Ikan pemangsa (Siakap, Kerapu) sedang aktif mencari makan. Gunakan umpan hidup atau gewang casting selaman dalam.";
-            } else {
-                strategy = "Kondisi mencabar. Ikan kurang aktif. Gunakan perambut halus, umpan berbau kuat (seperti udang peram) dan teknik memancing dasar (bottom).";
+                document.getElementById('alert-msg').innerText = `Angin: ${wind}km/h. Sangat bahaya untuk bot kecil.`;
             }
-            document.getElementById('strategy-text').innerText = strategy;
+
+            fetchGroqAnalysis(currentAreaName, wDesc, wind, moon.name, finalScore);
         }
 
         function initApp() {
-            const today = new Date();
-            document.getElementById('current-date').innerText = today.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' });
-            
-            // Panggil fungsi Kalendar Islam
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' });
             processHijriForecast();
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        fetchRealTimeData(pos.coords.latitude, pos.coords.longitude);
-                    },
-                    (err) => {
-                        document.getElementById('area-name').innerText = "Sila On GPS/Location";
-                        document.getElementById('gps-dot').style.backgroundColor = "var(--danger)";
-                        document.getElementById('kill-status').innerText = "LOKASI DIPERLUKAN";
-                        fetchRealTimeData(3.0, 101.3);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                document.getElementById('area-name').innerText = "GPS Tidak Disokong";
+            if (window.appMode === 'auto') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        pos => {
+                            window.currentLat = pos.coords.latitude;
+                            window.currentLon = pos.coords.longitude;
+                            fetchRealTimeData(window.currentLat, window.currentLon);
+                        },
+                        err => {
+                            console.warn("GPS gagal, tukar ke peta manual.");
+                            setMode('manual');
+                        },
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                    );
+                } else {
+                    document.getElementById('area-name').innerText = "GPS Tidak Disokong Pelayar";
+                    setMode('manual');
+                }
             }
         }
 
-        // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('Service Worker didaftarkan berjaya untuk PancingPRO', reg);
-                }).catch(err => {
-                    console.log('SW dipintas dalam persekitaran web ini - Fungsi PWA tetap dijana melalui Dynamic Manifest', err);
-                });
+                navigator.serviceWorker.register('sw.js').catch(() => console.log('SW fallback to manifest'));
             });
         }
 
-        // Resize handling
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Boot
-        window.onload = () => {
-            init3D();
-            animate3D();
-            initApp();
-        };
+        window.onload = () => { init3D(); animate3D(); initApp(); };
     </script>
 </body>
 </html>
