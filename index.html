@@ -6,35 +6,7 @@
     <title>PancingPRO AI - Dashboard Cuaca & Air</title>
     
     <meta name="theme-color" content="#020617">
-    
-    <!-- Dynamic Manifest Injection -->
-    <link id="manifest-link" rel="manifest" href="">
-    <script>
-        const manifestJSON = {
-            "name": "PancingPRO AI",
-            "short_name": "PancingPRO AI",
-            "description": "Dashboard Ramalan Memancing Pintar Dikuasakan oleh Groq AI",
-            "start_url": window.location.href.split('?')[0],
-            "display": "standalone",
-            "background_color": "#020617",
-            "theme_color": "#020617",
-            "orientation": "portrait-primary",
-            "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/2972/2972185.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/2972/2972185.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        };
-        const manifestString = JSON.stringify(manifestJSON);
-        document.getElementById('manifest-link').setAttribute('href', 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(manifestString));
-    </script>
+    <link rel="manifest" href="manifest.json">
 
     <!-- Cache Three.js for offline capability later -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -621,20 +593,7 @@
             const aiContainer = document.getElementById('ai-strategy-text');
             aiContainer.innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar AI Groq (Berdasarkan Air & Cuaca 2-Jam)... Sila Tunggu.</span>';
             
-            const prompt = `Anda adalah pakar memancing profesional di Malaysia. Sila analisis data persekitaran lokasi ini secara komprehensif:
-
-📍 Lokasi: ${location}
-☁️ Cuaca & Angin: ${weatherDesc}, kelajuan angin ${wind} km/h
-🌕 Fasa Bulan: ${moon}
-🌊 Jadual Pasang Surut: ${window.tideSummaryText}
-⏱️ Ramalan Cuaca (Akan Datang): ${window.forecastSummaryText}
-
-TUGASAN AI:
-1. Analisis potensi tangkapan berdasarkan gabungan air pasang surut, ramalan cuaca terdekat, dan fasa bulan.
-2. Cadangkan strategi umpan, teknik memancing, dan kedalaman sasaran (surface/mid/bottom).
-3. Berikan amaran keselamatan ringkas jika jadual air dan angin mendatangkan bahaya.
-
-Jawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai ringkas (bullet points).`;
+            const prompt = `Anda adalah pakar memancing profesional di Malaysia. Sila analisis data persekitaran lokasi ini secara komprehensif:\n\n📍 Lokasi: ${location}\n☁️ Cuaca & Angin: ${weatherDesc}, kelajuan angin ${wind} km/h\n🌕 Fasa Bulan: ${moon}\n🌊 Jadual Pasang Surut: ${window.tideSummaryText}\n⏱️ Ramalan Cuaca (Akan Datang): ${window.forecastSummaryText}\n\nTUGASAN AI:\n1. Analisis potensi tangkapan berdasarkan gabungan air pasang surut, ramalan cuaca terdekat, dan fasa bulan.\n2. Cadangkan strategi umpan, teknik memancing, dan kedalaman sasaran (surface/mid/bottom).\n3. Berikan amaran keselamatan ringkas jika jadual air dan angin mendatangkan bahaya.\n\nJawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai ringkas (bullet points).`;
 
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
@@ -662,19 +621,23 @@ Jawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "llama3-8b-8192",
+                        model: "llama-3.1-8b-instant", // Ditukar dari model lama kepada model terbaru yang aktif
                         messages: [{"role": "user", "content": prompt}],
                         temperature: 0.7,
                         max_tokens: 800
                     })
                 });
                 
-                if (!response.ok) throw new Error("API Groq Dihalang");
+                if (!response.ok) throw new Error("API Groq Dihalang atau Model Salah (HTTP " + response.status + ")");
                 const data = await response.json();
-                aiContainer.innerHTML = formatAIResponse(data.choices[0].message.content);
+                if (data.choices && data.choices.length > 0) {
+                    aiContainer.innerHTML = formatAIResponse(data.choices[0].message.content);
+                } else {
+                    throw new Error("Format data AI tidak sah");
+                }
             } catch (error) {
                 console.error("Groq Client Error:", error);
-                aiContainer.innerHTML = `Analisis AI dihalang oleh pelayar. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan <i>${window.tideSummaryText}</i> tempatan.`;
+                aiContainer.innerHTML = `Panggilan AI tergendala kerana sekatan pelayar atau masalah model pelayan. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan <i>${window.tideSummaryText}</i> tempatan.`;
             }
         }
 
@@ -829,10 +792,9 @@ Jawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai
         async function fetchRealTimeData(lat, lon) {
             showLoadingState();
             try {
-                // Panggilan Nominatim yang selamat. Tiada lagi error terlepas yang merosakkan aplikasi.
+                // Panggilan Nominatim yang selamat
                 await fetchLocationName(lat, lon);
                 
-                // Parameter timeformat=unixtime ditambah supaya kita boleh format menggunakan zon masa yang dijumpai
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunrise,sunset&timezone=auto&timeformat=unixtime&forecast_days=3`;
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Ralat Rangkaian Open-Meteo");
@@ -934,7 +896,9 @@ Jawab dalam Bahasa Melayu yang tersusun, profesional, menggunakan format senarai
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => console.log('SW fallback to manifest'));
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Berjaya Didaftarkan'))
+                    .catch(err => console.warn('Pendaftaran SW Gagal, bertukar kepada mod luar talian lalai', err));
             });
         }
 
