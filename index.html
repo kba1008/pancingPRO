@@ -258,19 +258,6 @@
             font-style: italic;
             text-align: justify;
         }
-        
-        .select-zone {
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: 1px solid var(--accent-blue);
-            padding: 8px;
-            border-radius: 8px;
-            width: 100%;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            outline: none;
-        }
 
         .mode-btn {
             background: rgba(0,0,0,0.5);
@@ -395,12 +382,9 @@
         <div class="glass-card">
             <h3>🌊 WAKTU TEPAT PASANG SURUT</h3>
             
-            <label class="label" style="color: var(--accent-blue);">Pilih Zon Pantai Anda (Untuk Ketepatan Masa):</label>
-            <select id="zone-select" class="select-zone" onchange="updateTides()">
-                <option value="5.5">Semenanjung - Pantai Barat (Lunitidal: ~5.5 J)</option>
-                <option value="10.0">Semenanjung - Pantai Timur (Lunitidal: ~10.0 J)</option>
-                <option value="8.0">Sabah / Sarawak (Lunitidal: ~8.0 J)</option>
-            </select>
+            <div id="tide-station-info" class="label" style="color: var(--accent-blue); margin-bottom: 10px; font-size: 0.8rem; background: rgba(0,210,255,0.1); padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent-blue);">
+                Kesan Lokasi untuk Stesen Rujukan...
+            </div>
 
             <table id="tide-table">
                 <tr><th>Kejadian</th><th>Waktu (Anggaran)</th><th>Aktiviti</th></tr>
@@ -408,7 +392,7 @@
             </table>
             
             <div class="tide-source-text">
-                <b>Sumber Data:</b> Kiraan <i>Algoritma Astronomi (Fasa Bulan)</i> beserta <i>Lunitidal Interval</i>. Ralat ketidaktepatan selama seminggu berpunca dari ketiadaan zon lokasi khusus. Kini, masa Mula Pasang/Surut ditala secara saintifik mengikut zon pilihan. Untuk 100% ketepatan mutlak, sila rujuk stesen ukur JUPEM tempatan.
+                <b>Sumber Data:</b> Kiraan algoritma astronomi dengan pangkalan data Lunitidal tempatan (Semi-Diurnal & Diurnal). Algoritma kini secara automatik mengesan stesen pasang surut terdekat berdasarkan lokasi peta anda untuk jadual spesifik. Ralat mungkin wujud berbanding jadual JUPEM rasmi.
             </div>
         </div>
 
@@ -445,6 +429,49 @@
             score: 0,
             timezone: ""
         };
+
+        // Pangkalan Data Stesen Pasang Surut Malaysia
+        const tidalStations = [
+            { name: "Langkawi (Utara Pantai Barat)", lat: 6.30, lon: 99.85, type: "semi", lunitidal: 0.2 },
+            { name: "Pulau Pinang", lat: 5.42, lon: 100.33, type: "semi", lunitidal: 0.5 },
+            { name: "Lumut (Perak)", lat: 4.23, lon: 100.63, type: "semi", lunitidal: 3.5 },
+            { name: "Pelabuhan Klang", lat: 3.00, lon: 101.40, type: "semi", lunitidal: 5.5 },
+            { name: "Port Dickson", lat: 2.52, lon: 101.79, type: "semi", lunitidal: 7.0 },
+            { name: "Melaka", lat: 2.18, lon: 102.25, type: "semi", lunitidal: 8.5 },
+            { name: "Johor Bahru", lat: 1.45, lon: 103.75, type: "semi", lunitidal: 10.0 },
+            { name: "Mersing / Tg Balau (Johor Timur)", lat: 2.43, lon: 103.83, type: "diurnal", lunitidal: 10.5 },
+            { name: "Kuantan (Pahang)", lat: 3.80, lon: 103.33, type: "diurnal", lunitidal: 9.0 },
+            { name: "Kuala Terengganu", lat: 5.33, lon: 103.13, type: "diurnal", lunitidal: 8.5 },
+            { name: "Kota Bharu (Kelantan)", lat: 6.13, lon: 102.23, type: "diurnal", lunitidal: 8.0 },
+            { name: "Kuching (Sarawak)", lat: 1.55, lon: 110.33, type: "semi", lunitidal: 4.5 },
+            { name: "Bintulu (Sarawak)", lat: 3.16, lon: 113.03, type: "diurnal", lunitidal: 6.0 },
+            { name: "Miri (Sarawak)", lat: 4.38, lon: 113.98, type: "diurnal", lunitidal: 7.0 },
+            { name: "Kota Kinabalu (Sabah)", lat: 5.98, lon: 116.06, type: "diurnal", lunitidal: 10.0 },
+            { name: "Kudat (Sabah)", lat: 6.88, lon: 116.85, type: "diurnal", lunitidal: 11.0 },
+            { name: "Sandakan (Sabah)", lat: 5.83, lon: 118.11, type: "semi", lunitidal: 11.5 },
+            { name: "Tawau (Sabah)", lat: 4.25, lon: 117.88, type: "semi", lunitidal: 6.5 }
+        ];
+
+        function getNearestTidalStation(lat, lon) {
+            let nearest = tidalStations[0];
+            let minDist = Infinity;
+            const toRad = x => x * Math.PI / 180;
+            
+            tidalStations.forEach(st => {
+                const dLat = toRad(st.lat - lat);
+                const dLon = toRad(st.lon - lon);
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(toRad(lat)) * Math.cos(toRad(st.lat)) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const d = 6371 * c; // Dalam KM
+                if (d < minDist) {
+                    minDist = d;
+                    nearest = st;
+                }
+            });
+            return nearest;
+        }
 
         // --- ENJIN 3D ---
         let scene, camera, renderer, water, clock;
@@ -621,7 +648,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "llama-3.1-8b-instant", // Ditukar dari model lama kepada model terbaru yang aktif
+                        model: "llama-3.1-8b-instant",
                         messages: [{"role": "user", "content": prompt}],
                         temperature: 0.7,
                         max_tokens: 800
@@ -637,64 +664,110 @@
                 }
             } catch (error) {
                 console.error("Groq Client Error:", error);
-                aiContainer.innerHTML = `Panggilan AI tergendala kerana sekatan pelayar atau masalah model pelayan. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan <i>${window.tideSummaryText}</i> tempatan.`;
+                aiContainer.innerHTML = `Panggilan AI tergendala kerana sekatan pelayar atau masalah model pelayan. Walau bagaimanapun, memandangkan skor semasa adalah <b>${score}%</b>, gunakan teknik pancingan selaras dengan jadual pasang surut di atas.`;
             }
         }
 
         // --- LOGIK TERAS APLIKASI ---
         function updateTides(skipAI) {
-            if(window.currentMoonAge === 0) return;
+            if(window.currentMoonAge === 0 && window.currentLat === null) return;
             if(typeof skipAI !== 'boolean') skipAI = false;
             
-            const lunitidalInterval = parseFloat(document.getElementById('zone-select').value);
-            let transitTime = (window.currentMoonAge * 24) / 29.530588;
+            let lat = window.currentLat || 3.00;
+            let lon = window.currentLon || 101.40;
             
-            let h1 = (transitTime + lunitidalInterval) % 12;
-            let l1 = (h1 + 6.21) % 24;
-            let h2 = (h1 + 12.42) % 24;
-            let l2 = (l1 + 12.42) % 24;
+            const station = getNearestTidalStation(lat, lon);
+            const lunitidalInterval = station.lunitidal;
+            
+            document.getElementById('tide-station-info').innerHTML = `📍 Stesen Rujukan: <b>${station.name}</b> (Jarak Terdekat, Jenis: ${station.type === 'semi' ? 'Semi-Diurnal' : 'Diurnal'})`;
+            
+            // Transit Atas berdasar fasa bulan (anggaran pergerakan harian 50 minit)
+            let transitTime = (12 + (window.currentMoonAge * 24 / 29.530588)) % 24;
             
             function formatTime(hDecimal) {
+                if (isNaN(hDecimal)) return "--:--";
                 let h = Math.floor(hDecimal);
                 let m = Math.floor((hDecimal - h) * 60);
-                if (h < 0) h += 24;
-                h = h % 24;
+                h = ((h % 24) + 24) % 24;
                 let ampm = h >= 12 ? 'PM' : 'AM';
                 let hour = h % 12; if (hour === 0) hour = 12;
                 return `${hour.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
             }
 
-            const s1 = formatTime(h1), s2 = formatTime(h2);
-            const p1 = formatTime(l1), p2 = formatTime(l2);
+            let html = `<tr><th>Kejadian</th><th>Waktu Tepat (Anggaran)</th><th>Aktiviti</th></tr>`;
 
-            window.tideSummaryText = `Arus Mula Surut: ${s1} & ${s2}, Arus Mula Pasang: ${p1} & ${p2}`;
-            
-            let html = `
-                <tr><th>Kejadian</th><th>Waktu Tepat (Anggaran)</th><th>Aktiviti</th></tr>
-                <tr class="highlight-row">
-                    <td>⬇️ MULA SURUT<br><small style="font-weight:normal;">(Arus Tolak Luar)</small></td>
-                    <td style="color:var(--accent-blue); font-weight:bold; font-size: 0.95rem;">${s1} & ${s2}</td>
-                    <td><span class="badge bg-green">Sangat Aktif</span></td>
-                </tr>
-                <tr>
-                    <td>🌑 Surut Penuh<br><small style="font-weight:normal;">(Air Mati)</small></td>
-                    <td>${formatTime(l1 - 1.5)} & ${formatTime(l2 - 1.5)}</td>
-                    <td><span class="badge bg-red">Pasif</span></td>
-                </tr>
-                <tr class="highlight-row">
-                    <td>⬆️ MULA PASANG<br><small style="font-weight:normal;">(Arus Laju Masuk)</small></td>
-                    <td style="color:var(--success); font-weight:bold; font-size: 0.95rem;">${p1} & ${p2}</td>
-                    <td><span class="badge bg-green">Ikan Aktif</span></td>
-                </tr>
-                <tr>
-                    <td>🌕 Pasang Penuh<br><small style="font-weight:normal;">(Air Tegak / Bunga)</small></td>
-                    <td>${formatTime(h1 - 1.5)} & ${formatTime(h2 - 1.5)}</td>
-                    <td><span class="badge bg-red">Pasif</span></td>
-                </tr>
-            `;
+            if (station.type === 'semi') {
+                let HW1 = (transitTime + lunitidalInterval) % 12;
+                let HW2 = HW1 + 12.42;
+                let LW1 = HW1 + 6.21;
+                let LW2 = HW1 + 18.63;
+                
+                let mulaSurut1 = (HW1 + 1) % 24;
+                let mulaSurut2 = (HW2 + 1) % 24;
+                let mulaPasang1 = (LW1 + 1) % 24;
+                let mulaPasang2 = (LW2 + 1) % 24;
+
+                window.tideSummaryText = `Arus Mula Surut: ${formatTime(mulaSurut1)} & ${formatTime(mulaSurut2)}, Arus Mula Pasang: ${formatTime(mulaPasang1)} & ${formatTime(mulaPasang2)} (Rujukan Stesen: ${station.name})`;
+
+                html += `
+                    <tr class="highlight-row">
+                        <td>⬇️ MULA SURUT<br><small style="font-weight:normal;">(Arus Tolak Luar)</small></td>
+                        <td style="color:var(--accent-blue); font-weight:bold; font-size: 0.95rem;">${formatTime(mulaSurut1)} & ${formatTime(mulaSurut2)}</td>
+                        <td><span class="badge bg-green">Sangat Aktif</span></td>
+                    </tr>
+                    <tr>
+                        <td>🌑 Surut Penuh<br><small style="font-weight:normal;">(Air Mati)</small></td>
+                        <td>${formatTime(LW1)} & ${formatTime(LW2)}</td>
+                        <td><span class="badge bg-red">Pasif</span></td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>⬆️ MULA PASANG<br><small style="font-weight:normal;">(Arus Laju Masuk)</small></td>
+                        <td style="color:var(--success); font-weight:bold; font-size: 0.95rem;">${formatTime(mulaPasang1)} & ${formatTime(mulaPasang2)}</td>
+                        <td><span class="badge bg-green">Ikan Aktif</span></td>
+                    </tr>
+                    <tr>
+                        <td>🌕 Pasang Penuh<br><small style="font-weight:normal;">(Air Tegak / Bunga)</small></td>
+                        <td>${formatTime(HW1)} & ${formatTime(HW2)}</td>
+                        <td><span class="badge bg-red">Pasif</span></td>
+                    </tr>
+                `;
+            } else {
+                // Algoritma Diurnal (Contohnya di Pantai Timur / Sabah tertentu)
+                let HW1 = (transitTime + lunitidalInterval) % 24;
+                let LW1 = (HW1 + 12.42) % 24;
+                
+                let mulaSurut1 = (HW1 + 1) % 24;
+                let mulaPasang1 = (LW1 + 1) % 24;
+
+                window.tideSummaryText = `Arus Mula Surut: ${formatTime(mulaSurut1)}, Arus Mula Pasang: ${formatTime(mulaPasang1)} (Rujukan Stesen: ${station.name} - Diurnal)`;
+
+                html += `
+                    <tr class="highlight-row">
+                        <td>⬇️ MULA SURUT<br><small style="font-weight:normal;">(Arus Tolak Luar)</small></td>
+                        <td style="color:var(--accent-blue); font-weight:bold; font-size: 0.95rem;">${formatTime(mulaSurut1)}</td>
+                        <td><span class="badge bg-green">Sangat Aktif</span></td>
+                    </tr>
+                    <tr>
+                        <td>🌑 Surut Penuh<br><small style="font-weight:normal;">(Air Mati)</small></td>
+                        <td>${formatTime(LW1)}</td>
+                        <td><span class="badge bg-red">Pasif</span></td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>⬆️ MULA PASANG<br><small style="font-weight:normal;">(Arus Laju Masuk)</small></td>
+                        <td style="color:var(--success); font-weight:bold; font-size: 0.95rem;">${formatTime(mulaPasang1)}</td>
+                        <td><span class="badge bg-green">Ikan Aktif</span></td>
+                    </tr>
+                    <tr>
+                        <td>🌕 Pasang Penuh<br><small style="font-weight:normal;">(Air Tegak / Bunga)</small></td>
+                        <td>${formatTime(HW1)}</td>
+                        <td><span class="badge bg-red">Pasif</span></td>
+                    </tr>
+                `;
+            }
+
             document.getElementById('tide-table').innerHTML = html;
 
-            // Refresh AI jika pengguna menukar zon pantai secara manual
+            // Refresh AI jika pengguna menukar lokasi di peta secara manual
             if (!skipAI && window.latestWeatherData.location) {
                 fetchGroqAnalysis(
                     window.latestWeatherData.location, 
