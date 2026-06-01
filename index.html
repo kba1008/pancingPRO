@@ -668,7 +668,8 @@
             const aiContainer = document.getElementById('ai-strategy-text');
             aiContainer.innerHTML = '<span class="loader-text ai-loader">Menjana Analisis Pintar... Sila Tunggu.</span>';
             
-            const prompt = `Anda adalah pakar memancing profesional. Analisis data terkini ini:\n📍 Lokasi: ${location}\n☁️ Cuaca & Angin: ${weatherDesc}, kelajuan ${wind} km/h\n📊 Tekanan Barometer: ${pressureInfo}\n🌕 Fasa Bulan: ${moon}\n🌊 Arus Air: ${window.tideSummaryText}\n🕒 Waktu Solunar: ${window.solunarData.major} (Major), ${window.solunarData.minor} (Minor)\n\nBerdasarkan gabungan cuaca, tekanan udara (barometer turun=aktif), fasa bulan, dan arus pasang surut ini, berikan analisis ringkas:\n**WAKTU IKAN AKTIF**: (Waktu terbaik)\n**TEKNIK & KEDALAMAN**: (Cadangan khusus)\n**UMPAN TERBAIK**: (Sesuai dengan arus dan bulan)\n**AMARAN KESELAMATAN**: (Jika angin kuat atau ribut)\n\nGunakan Bahasa Melayu. Padat. Bold poin penting.`;
+            // PROMPT YANG DIKEMASKINI: Menekankan Bahasa Melayu Malaysia dan menambah segmen aktiviti mencari siput
+            const prompt = `Anda adalah pakar memancing profesional dan pakar marin. Sila gunakan Bahasa Melayu Malaysia yang tepat dan semula jadi. Analisis data gabungan satelit dan pemerhatian terkini ini:\n📍 Lokasi: ${location}\n☁️ Cuaca & Angin: ${weatherDesc}, kelajuan ${wind} km/h\n📊 Tekanan Barometer: ${pressureInfo}\n🌕 Fasa Bulan: ${moon}\n🌊 Arus Air: ${window.tideSummaryText}\n🕒 Waktu Solunar: ${window.solunarData.major} (Major), ${window.solunarData.minor} (Minor)\n\nBerdasarkan gabungan data cuaca, tekanan udara (barometer turun=aktif), fasa bulan, dan kitaran pasang surut ini, berikan analisis bersepadu berketepatan tinggi:\n**WAKTU IKAN AKTIF**: (Nyatakan waktu terbaik untuk pancingan)\n**TEKNIK & KEDALAMAN**: (Cadangan gaya pancingan khusus)\n**UMPAN TERBAIK**: (Sesuai dengan keadaan arus dan bulan)\n**AMARAN KESELAMATAN**: (Saranan jika keadaan angin kuat atau ribut)\n**AKTIVITI CARI SIPUT**: (Berdasarkan maklumat pasang surut di atas, nyatakan WAKTU TEPAT dan TEMPOH MASA yang paling sesuai untuk mencari siput di tepi pantai ketika air surut)\n\nBerikan jawapan yang padat. Bold poin penting.`;
 
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
@@ -766,7 +767,7 @@
                 let mulaPasang1 = (LW1 + 1) % 24;
                 let mulaPasang2 = (LW2 + 1) % 24;
 
-                window.tideSummaryText = `Arus Mula Tolak (Kelajuan Sederhana ke Laju): ${formatTime(mulaSurut1)}, Arus Mula Masuk (Arus Kuat Bawa Umpan): ${formatTime(mulaPasang1)}`;
+                window.tideSummaryText = `Arus Mula Tolak (Kelajuan Sederhana ke Laju): ${formatTime(mulaSurut1)} hingga Surut Penuh ${formatTime(LW1)}. Arus Mula Masuk (Arus Kuat Bawa Umpan): ${formatTime(mulaPasang1)}`;
 
                 html += `
                     <tr class="highlight-row">
@@ -796,7 +797,7 @@
                 let mulaSurut1 = (HW1 + 1) % 24;
                 let mulaPasang1 = (LW1 + 1) % 24;
 
-                window.tideSummaryText = `Arus Mula Tolak: ${formatTime(mulaSurut1)}, Arus Mula Masuk: ${formatTime(mulaPasang1)} (Diurnal)`;
+                window.tideSummaryText = `Arus Mula Tolak: ${formatTime(mulaSurut1)} hingga Surut Penuh pada ${formatTime(LW1)}. Arus Mula Masuk: ${formatTime(mulaPasang1)} (Diurnal)`;
 
                 html += `
                     <tr class="highlight-row">
